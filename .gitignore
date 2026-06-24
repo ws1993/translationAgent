@@ -1,0 +1,34 @@
+# 忽略依赖
+node_modules/
+dist/
+docs/
+
+# 忽略环境变量
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 忽略日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 忽略编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略构建产物
+*.tsbuildinfo
+
+# 忽略测试覆盖率
+coverage/
