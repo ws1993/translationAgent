@@ -55,7 +55,8 @@ export class LLMService {
       {
         model: this.config.model,
         messages,
-        temperature: this.config.temperature || 0.7,
+        temperature: this.config.temperature ?? 0,
+        top_p: this.config.topP ?? 1,
         max_tokens: this.config.maxTokens || 2000,
       },
       {
@@ -87,7 +88,8 @@ export class LLMService {
           role: m.role,
           content: m.content,
         })),
-        temperature: this.config.temperature || 0.7,
+        temperature: this.config.temperature ?? 0,
+        top_p: this.config.topP ?? 1,
       },
       {
         headers: {
@@ -115,7 +117,8 @@ export class LLMService {
       body: JSON.stringify({
         model: this.config.model,
         messages,
-        temperature: this.config.temperature || 0.7,
+        temperature: this.config.temperature ?? 0,
+        top_p: this.config.topP ?? 1,
         max_tokens: this.config.maxTokens || 2000,
         stream: true,
       }),
@@ -183,7 +186,8 @@ export class LLMService {
           role: m.role,
           content: m.content,
         })),
-        temperature: this.config.temperature || 0.7,
+        temperature: this.config.temperature ?? 0,
+        top_p: this.config.topP ?? 1,
         stream: true,
       }),
     });

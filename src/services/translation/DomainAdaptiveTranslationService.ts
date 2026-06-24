@@ -247,17 +247,36 @@ ${sourceText}
     const response = await this.llmService.sendMessage(messages);
     
     try {
+      console.log('[DomainAdaptive] Raw terminology response:', response.content.substring(0, 500));
+      
       const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
                        response.content.match(/\[[\s\S]*\]/);
-      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response.content;
-      const terminology = JSON.parse(jsonStr.trim());
+      
+      if (!jsonMatch) {
+        console.warn('[DomainAdaptive] No JSON found in response, returning empty terminology');
+        return [];
+      }
+      
+      const jsonStr = (jsonMatch[1] || jsonMatch[0]).trim();
+      
+      if (!jsonStr) {
+        console.warn('[DomainAdaptive] Empty JSON string, returning empty terminology');
+        return [];
+      }
+      
+      const terminology = JSON.parse(jsonStr);
       
       if (Array.isArray(terminology)) {
+        console.log('[DomainAdaptive] Successfully parsed', terminology.length, 'terms');
         return terminology;
       }
+      
+      console.warn('[DomainAdaptive] Parsed result is not an array:', typeof terminology);
       return [];
     } catch (error) {
       console.error('[DomainAdaptive] Failed to parse terminology:', error);
+      console.error('[DomainAdaptive] Response content length:', response.content.length);
+      console.error('[DomainAdaptive] Response preview:', response.content.substring(0, 200));
       return [];
     }
   }

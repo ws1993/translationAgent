@@ -1,4 +1,5 @@
 import { X, FileText, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { TranslationResult } from '../../types';
 
 interface TranslationReportProps {
@@ -273,100 +274,26 @@ export function TranslationReport({
                   · 第二阶段：发现 {issueCount} 处需要优化
                 </span>
               </h2>
-              <div className="space-y-3">
-                {result.issues?.map((issue, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-accent-tint rounded-lg border border-accent/30 p-4 flex items-start gap-4"
+              <div className="bg-accent-tint rounded-lg border border-accent/30 p-5">
+                <div className="prose prose-sm max-w-none [&_ol]:list-decimal [&_ol]:list-outside [&_ol]:ml-5 [&_ul]:list-disc [&_ul]:list-outside [&_ul]:ml-5">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="text-sm text-ink leading-relaxed mb-3 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold text-accent">{children}</strong>,
+                      em: ({ children }) => <em className="italic text-ink">{children}</em>,
+                      code: ({ children }) => <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-ink border border-accent/20">{children}</code>,
+                      ul: ({ children }) => <ul className="space-y-2 mb-3 text-sm text-ink">{children}</ul>,
+                      ol: ({ children }) => <ol className="space-y-2 mb-3 text-sm text-ink">{children}</ol>,
+                      li: ({ children }) => <li className="text-sm text-ink leading-relaxed [&>p]:inline [&>p]:m-0">{children}</li>,
+                      h1: ({ children }) => <h1 className="text-lg font-bold text-accent mb-2 mt-4 first:mt-0">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-bold text-accent mb-2 mt-3 first:mt-0">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-bold text-accent mb-1 mt-2 first:mt-0">{children}</h3>,
+                      blockquote: ({ children }) => <blockquote className="border-l-4 border-accent/30 pl-3 italic text-sm text-muted my-2">{children}</blockquote>,
+                    }}
                   >
-                    <div className="flex-shrink-0 w-7 h-7 bg-accent text-white rounded-full flex items-center justify-center text-xs font-bold">
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm text-ink leading-relaxed">
-                        {(() => {
-                          // 移除开头的序号（如 "1. " "2. " 等）
-                          let cleanedIssue = issue.replace(/^\d+\.\s*/, '').trim();
-                          
-                          // 移除所有 Markdown 格式标记
-                          // 移除代码块标记 ``` 和 `
-                          cleanedIssue = cleanedIssue.replace(/```[\s\S]*?```/g, (match) => {
-                            // 提取代码块内容
-                            return match.replace(/```\w*\n?/g, '').replace(/```/g, '');
-                          });
-                          cleanedIssue = cleanedIssue.replace(/`([^`]+)`/g, '$1');
-                          
-                          // 移除斜体标记 * 和 _
-                          cleanedIssue = cleanedIssue.replace(/\*([^*]+)\*/g, '$1');
-                          cleanedIssue = cleanedIssue.replace(/_([^_]+)_/g, '$1');
-                          
-                          // 检查是否包含冒号分隔的标题和内容
-                          const colonIndex = cleanedIssue.indexOf('：');
-                          if (colonIndex > 0 && colonIndex < 100) {
-                            const title = cleanedIssue.substring(0, colonIndex);
-                            const content = cleanedIssue.substring(colonIndex + 1).trim();
-                            
-                            // 处理标题中的加粗标记 **
-                            const titleText = title.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
-                            // 处理内容中的加粗标记 **
-                            const processContent = (text: string) => {
-                              const parts: (string | JSX.Element)[] = [];
-                              let lastIndex = 0;
-                              const regex = /\*\*([^*]+?)\*\*/g;
-                              let match;
-                              
-                              while ((match = regex.exec(text)) !== null) {
-                                if (match.index > lastIndex) {
-                                  parts.push(text.substring(lastIndex, match.index));
-                                }
-                                parts.push(<strong key={match.index} className="font-bold">{match[1]}</strong>);
-                                lastIndex = match.index + match[0].length;
-                              }
-                              
-                              if (lastIndex < text.length) {
-                                parts.push(text.substring(lastIndex));
-                              }
-                              
-                              return parts.length > 0 ? parts : text;
-                            };
-                            
-                            return (
-                              <span>
-                                <strong className="font-bold text-accent">{titleText}：</strong>
-                                {processContent(content)}
-                              </span>
-                            );
-                          }
-                          
-                          // 没有冒号，处理整个内容
-                          const processContent = (text: string) => {
-                            const parts: (string | JSX.Element)[] = [];
-                            let lastIndex = 0;
-                            const regex = /\*\*([^*]+?)\*\*/g;
-                            let match;
-                            
-                            while ((match = regex.exec(text)) !== null) {
-                              if (match.index > lastIndex) {
-                                parts.push(text.substring(lastIndex, match.index));
-                              }
-                              parts.push(<strong key={match.index} className="font-bold">{match[1]}</strong>);
-                              lastIndex = match.index + match[0].length;
-                            }
-                            
-                            if (lastIndex < text.length) {
-                              parts.push(text.substring(lastIndex));
-                            }
-                            
-                            return parts.length > 0 ? parts : text;
-                          };
-                          
-                          return <span>{processContent(cleanedIssue)}</span>;
-                        })()}
-                      </div>
-                    </div>
-                    <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-1" />
-                  </div>
-                ))}
+                    {result.issues?.join('\n\n') || ''}
+                  </ReactMarkdown>
+                </div>
               </div>
             </section>
           )}

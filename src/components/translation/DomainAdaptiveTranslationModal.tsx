@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { TranslationProgress } from '../../stores/translationStore';
+import ReactMarkdown from 'react-markdown';
 
 interface DomainAdaptiveTranslationModalProps {
   isOpen: boolean;
@@ -333,20 +334,26 @@ export function DomainAdaptiveTranslationModal({
               {renderThinkingHeader('issues')}
               
               {progress.issues && progress.issues.length > 0 ? (
-                <div className="space-y-3">
-                  {progress.issues.map((issue, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-4 p-4 bg-[#F0E3D0] rounded-lg border border-[#C8853F]/20 hover:border-[#C8853F]/40 transition-colors"
+                <div className="p-5 bg-[#F0E3D0] rounded-lg border border-[#C8853F]/20">
+                  <div className="prose prose-sm max-w-none [&_ol]:list-decimal [&_ol]:list-outside [&_ol]:ml-5 [&_ul]:list-disc [&_ul]:list-outside [&_ul]:ml-5">
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => <p className="text-sm text-[#1F2421] leading-relaxed mb-3 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold text-[#C8853F]">{children}</strong>,
+                        em: ({ children }) => <em className="italic text-[#1F2421]">{children}</em>,
+                        code: ({ children }) => <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-[#1F2421] border border-[#C8853F]/20">{children}</code>,
+                        ul: ({ children }) => <ul className="space-y-2 mb-3 text-sm text-[#1F2421]">{children}</ul>,
+                        ol: ({ children }) => <ol className="space-y-2 mb-3 text-sm text-[#1F2421]">{children}</ol>,
+                        li: ({ children }) => <li className="text-sm text-[#1F2421] leading-relaxed [&>p]:inline [&>p]:m-0">{children}</li>,
+                        h1: ({ children }) => <h1 className="text-lg font-bold text-[#C8853F] mb-2 mt-4 first:mt-0">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold text-[#C8853F] mb-2 mt-3 first:mt-0">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-bold text-[#C8853F] mb-1 mt-2 first:mt-0">{children}</h3>,
+                        blockquote: ({ children }) => <blockquote className="border-l-4 border-[#C8853F]/30 pl-3 italic text-sm text-[#8A8A80] my-2">{children}</blockquote>,
+                      }}
                     >
-                      <span className="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-[#C8853F] text-white text-sm font-bold rounded-full mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <div className="flex-1 text-sm text-[#1F2421] leading-relaxed whitespace-pre-wrap">
-                        {issue.replace(/^\d+\.\s*/, '')}
-                      </div>
-                    </div>
-                  ))}
+                      {progress.issues.join('\n\n')}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-16 text-[#8A8A80]">

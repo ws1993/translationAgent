@@ -66,6 +66,7 @@ export interface LLMConfig {
   baseUrl?: string;
   model: string;
   temperature?: number;
+  topP?: number;
   maxTokens?: number;
   isActive: boolean;
 }

@@ -26,7 +26,8 @@ function Settings() {
     apiKey: '',
     baseUrl: '',
     model: 'gpt-4',
-    temperature: 0.7,
+    temperature: 0,
+    topP: 1,
     maxTokens: 2000,
   });
   const [testingLLM, setTestingLLM] = useState(false);
@@ -70,6 +71,7 @@ function Settings() {
       baseUrl: llmForm.baseUrl || undefined,
       model: llmForm.model,
       temperature: llmForm.temperature,
+      topP: llmForm.topP,
       maxTokens: llmForm.maxTokens,
       isActive: false,
     });
@@ -81,7 +83,8 @@ function Settings() {
       apiKey: '',
       baseUrl: '',
       model: 'gpt-4',
-      temperature: 0.7,
+      temperature: 0,
+      topP: 1,
       maxTokens: 2000,
     });
   };
@@ -104,6 +107,7 @@ function Settings() {
         baseUrl: llmForm.baseUrl || undefined,
         model: llmForm.model,
         temperature: llmForm.temperature,
+        topP: llmForm.topP,
         maxTokens: llmForm.maxTokens,
         isActive: false,
       };
@@ -258,6 +262,47 @@ function Settings() {
                   onChange={(e) => setLLMForm({ ...llmForm, model: e.target.value })}
                   placeholder="gpt-4"
                 />
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label className="mb-2 block">Temperature</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                    value={llmForm.temperature}
+                    onChange={(e) => setLLMForm({ ...llmForm, temperature: parseFloat(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-muted mt-1">越低越确定，推荐 0</p>
+                </div>
+                <div>
+                  <Label className="mb-2 block">Top P</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={llmForm.topP}
+                    onChange={(e) => setLLMForm({ ...llmForm, topP: parseFloat(e.target.value) || 1 })}
+                    placeholder="1"
+                  />
+                  <p className="text-xs text-muted mt-1">配合 temperature=0 使用，推荐 1</p>
+                </div>
+                <div>
+                  <Label className="mb-2 block">最大 Tokens</Label>
+                  <Input
+                    type="number"
+                    min="100"
+                    max="128000"
+                    step="100"
+                    value={llmForm.maxTokens}
+                    onChange={(e) => setLLMForm({ ...llmForm, maxTokens: parseInt(e.target.value) || 2000 })}
+                    placeholder="2000"
+                  />
+                </div>
               </div>
               
               <div className="flex gap-4">
