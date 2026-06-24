@@ -2,9 +2,12 @@
 
 @theme {
   --color-background: #F6F1E8;
+  --color-paper: #F6F1E8;
   --color-surface: #FFFFFF;
   --color-surface-1: #FBF7EF;
+  --color-surface-light: #FBF7EF;
   --color-border: #E2D9C8;
+  --color-warm-border: #E2D9C8;
   --color-ink: #1F2421;
   --color-muted: #8A8A80;
   --color-accent: #C8853F;
@@ -35,14 +38,23 @@
   .bg-background {
     background-color: var(--color-background);
   }
+  .bg-paper {
+    background-color: var(--color-paper);
+  }
   .bg-surface {
     background-color: var(--color-surface);
   }
   .bg-surface-1 {
     background-color: var(--color-surface-1);
   }
+  .bg-surface-light {
+    background-color: var(--color-surface-light);
+  }
   .border-border {
     border-color: var(--color-border);
+  }
+  .border-warm-border {
+    border-color: var(--color-warm-border);
   }
   .text-ink {
     color: var(--color-ink);
