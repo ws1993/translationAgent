@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TranslationMode, OutputFormat } from '../types';
-import { useTranslationStore } from '../stores/translationStore';
+import { useTranslationStore, TranslationProgress } from '../stores/translationStore';
 import { useLLMConfigStore } from '../stores/llmConfigStore';
 import { useDomainStore } from '../stores/domainStore';
 import { TranslationService } from '../services/translation/TranslationService';
@@ -18,6 +18,129 @@ import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { toast } from 'sonner';
+import { Progress } from '../components/ui/progress';
+
+// 进度展示组件
+function TranslationProgressDisplay({ progress }: { progress: TranslationProgress }) {
+  const stageLabels = {
+    direct: '直译',
+    issues: '问题分析',
+    final: '意译',
+    idle: '准备中',
+  };
+
+  const stageColors = {
+    direct: 'bg-blue-500',
+    issues: 'bg-yellow-500',
+    final: 'bg-green-500',
+    idle: 'bg-gray-300',
+  };
+
+  const stageBorderColors = {
+    direct: 'border-blue-200',
+    issues: 'border-yellow-200',
+    final: 'border-green-200',
+    idle: 'border-gray-200',
+  };
+
+  return (
+    <Card className="p-6 mb-6">
+      <div className="space-y-4">
+        {/* 进度条 */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">翻译进度</span>
+            <span className="text-muted-foreground">{progress.progress}%</span>
+          </div>
+          <Progress value={progress.progress} className="h-2" />
+        </div>
+
+        {/* 卡片式进度展示 */}
+        <div className="space-y-3">
+          {/* 直译卡片 */}
+          <div className={`border rounded-lg p-4 transition-all duration-300 ${
+            progress.stage === 'direct' ? `${stageBorderColors.direct} bg-blue-50` :
+            progress.progress > 33 ? 'border-green-200 bg-green-50' : 'border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  progress.stage === 'direct' ? `${stageColors.direct} animate-pulse` :
+                  progress.progress > 33 ? 'bg-green-500' : 'bg-gray-300'
+                }`} />
+                <span className="font-medium">{stageLabels.direct}</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {progress.progress > 33 ? '✓ 完成' : 
+                 progress.stage === 'direct' ? '进行中...' : '等待中'}
+              </span>
+            </div>
+            {progress.directTranslation && (
+              <div className="mt-3 p-3 bg-white rounded border text-sm leading-relaxed">
+                {progress.directTranslation}
+              </div>
+            )}
+          </div>
+
+          {/* 问题分析卡片 */}
+          <div className={`border rounded-lg p-4 transition-all duration-300 ${
+            progress.stage === 'issues' ? `${stageBorderColors.issues} bg-yellow-50` :
+            progress.progress > 66 ? 'border-green-200 bg-green-50' : 'border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  progress.stage === 'issues' ? `${stageColors.issues} animate-pulse` :
+                  progress.progress > 66 ? 'bg-green-500' : 'bg-gray-300'
+                }`} />
+                <span className="font-medium">{stageLabels.issues}</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {progress.progress > 66 ? '✓ 完成' : 
+                 progress.stage === 'issues' ? '进行中...' : '等待中'}
+              </span>
+            </div>
+            {progress.issues && progress.issues.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {progress.issues.map((issue, idx) => (
+                  <div key={idx} className="flex items-start space-x-2 text-sm">
+                    <span className="text-yellow-600 mt-0.5">•</span>
+                    <span className="text-muted-foreground">{issue}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 意译卡片 */}
+          <div className={`border rounded-lg p-4 transition-all duration-300 ${
+            progress.stage === 'final' ? `${stageBorderColors.final} bg-green-50` :
+            progress.progress >= 100 ? 'border-green-200 bg-green-50' : 'border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  progress.stage === 'final' ? `${stageColors.final} animate-pulse` :
+                  progress.progress >= 100 ? 'bg-green-500' : 'bg-gray-300'
+                }`} />
+                <span className="font-medium">{stageLabels.final}</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {progress.progress >= 100 ? '✓ 完成' : 
+                 progress.stage === 'final' ? '进行中...' : '等待中'}
+              </span>
+            </div>
+            {progress.finalTranslation && (
+              <div className="mt-3 p-3 bg-white rounded border text-sm leading-relaxed">
+                {progress.finalTranslation}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 function Translation() {
   const [sourceText, setSourceText] = useState('');
@@ -25,7 +148,7 @@ function Translation() {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>(OutputFormat.BILINGUAL);
   const [selectedDomainId, setSelectedDomainId] = useState<string>('');
   
-  const { currentTask, isTranslating, createTask, updateTaskResult, setIsTranslating } = useTranslationStore();
+  const { currentTask, isTranslating, createTask, updateTaskResult, setIsTranslating, progress, updateProgress } = useTranslationStore();
   const { getActiveConfig } = useLLMConfigStore();
   const { categories, getCategoryById } = useDomainStore();
 
@@ -42,6 +165,7 @@ function Translation() {
     }
 
     setIsTranslating(true);
+    updateProgress({ stage: 'idle', progress: 0 });
     createTask(sourceText, mode, outputFormat, selectedDomainId || undefined);
 
     try {
@@ -50,7 +174,20 @@ function Translation() {
         : undefined;
       
       const translationService = new TranslationService(activeConfig, domainPrompt);
-      const result = await translationService.translate(sourceText, mode);
+      
+      // 创建进度回调
+      const onProgress = (stage: 'direct' | 'issues' | 'final', progress: number, result?: any) => {
+        const newProgress: TranslationProgress = {
+          stage,
+          progress,
+          ...(stage === 'direct' && result ? { directTranslation: result } : {}),
+          ...(stage === 'issues' && result ? { issues: result } : {}),
+          ...(stage === 'final' && result ? { finalTranslation: result } : {}),
+        };
+        updateProgress(newProgress);
+      };
+      
+      const result = await translationService.translate(sourceText, mode, undefined, onProgress);
       
       if (currentTask) {
         updateTaskResult(currentTask.id, result);
@@ -137,6 +274,11 @@ function Translation() {
           </div> */}
         </div>
       </Card>
+
+      {/* 专业模式进度展示 */}
+      {mode === TranslationMode.PROFESSIONAL && isTranslating && (
+        <TranslationProgressDisplay progress={progress} />
+      )}
 
       <Card className="overflow-hidden shadow-lg mb-6">
         {outputFormat === OutputFormat.BILINGUAL ? (

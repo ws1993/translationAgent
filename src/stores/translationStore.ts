@@ -3,15 +3,25 @@ import { persist } from 'zustand/middleware';
 import { TranslationTask, TranslationMode, OutputFormat, Language } from '../types';
 import { nanoid } from 'nanoid';
 
+export interface TranslationProgress {
+  stage: 'direct' | 'issues' | 'final' | 'idle';
+  progress: number;
+  directTranslation?: string;
+  issues?: string[];
+  finalTranslation?: string;
+}
+
 interface TranslationStore {
   tasks: TranslationTask[];
   currentTask: TranslationTask | null;
   isTranslating: boolean;
+  progress: TranslationProgress;
   
   createTask: (sourceText: string, mode: TranslationMode, outputFormat: OutputFormat, domainId?: string) => void;
   updateTaskResult: (taskId: string, result: any) => void;
   setCurrentTask: (task: TranslationTask | null) => void;
   setIsTranslating: (isTranslating: boolean) => void;
+  updateProgress: (progress: TranslationProgress) => void;
   clearHistory: () => void;
 }
 
@@ -21,6 +31,7 @@ export const useTranslationStore = create<TranslationStore>()(
       tasks: [],
       currentTask: null,
       isTranslating: false,
+      progress: { stage: 'idle', progress: 0 },
 
       createTask: (sourceText, mode, outputFormat, domainId) => {
         const task: TranslationTask = {
@@ -36,6 +47,7 @@ export const useTranslationStore = create<TranslationStore>()(
         set((state) => ({
           tasks: [task, ...state.tasks],
           currentTask: task,
+          progress: { stage: 'idle', progress: 0 },
         }));
       },
 
@@ -53,7 +65,8 @@ export const useTranslationStore = create<TranslationStore>()(
 
       setCurrentTask: (task) => set({ currentTask: task }),
       setIsTranslating: (isTranslating) => set({ isTranslating }),
-      clearHistory: () => set({ tasks: [] }),
+      updateProgress: (progress) => set({ progress }),
+      clearHistory: () => set({ tasks: [], progress: { stage: 'idle', progress: 0 } }),
     }),
     {
       name: 'translation-storage',
