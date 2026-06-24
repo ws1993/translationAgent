@@ -65,7 +65,7 @@ ${sourceText}`;
     
     const baseSystemPrompt = `你是一位精通${sourceLanguageName}和${targetLanguageName}的专业翻译。请确保输出的文本编码正确，使用UTF-8编码。`;
     
-    // 第一步：直译
+    // 第一步：直译 (流式)
     onProgress?.('direct', 0);
     
     const directTranslationPrompt = `${this.domainPrompt ? this.domainPrompt + '\n\n' : ''}请将以下${sourceLanguageName}文本直译成${targetLanguageName}，保持原有格式，不要遗漏任何信息。
@@ -83,7 +83,9 @@ ${sourceText}`;
       { role: 'user', content: directTranslationPrompt },
     ];
 
-    const directResponse = await this.llmService.sendMessage(directMessages);
+    const directResponse = await this.llmService.sendMessageStream(directMessages, (chunk, fullText) => {
+      onProgress?.('direct', Math.min(95, Math.floor((fullText.length / (sourceText.length * 2)) * 100)), fullText);
+    });
     const directTranslation = directResponse.content.trim();
     
     console.log('[Translation] Direct translation completed:', directTranslation.substring(0, 100));
@@ -113,7 +115,7 @@ ${directTranslation}
     console.log('[Translation] Issues analysis completed:', issues.length, 'issues found');
     onProgress?.('issues', 100, issues);
 
-    // 第三步：意译
+    // 第三步：意译 (流式)
     onProgress?.('final', 0);
     
     const finalPrompt = `根据直译结果和指出的问题，重新进行意译。在保证内容原意的基础上，使其更易于理解，更符合${targetLanguageName}的表达习惯，同时保持原有的格式不变。
@@ -135,7 +137,9 @@ ${issues.join('\n')}
       { role: 'user', content: finalPrompt },
     ];
 
-    const finalResponse = await this.llmService.sendMessage(finalMessages);
+    const finalResponse = await this.llmService.sendMessageStream(finalMessages, (chunk, fullText) => {
+      onProgress?.('final', Math.min(95, Math.floor((fullText.length / (sourceText.length * 2)) * 100)), fullText);
+    });
     const finalTranslation = finalResponse.content.trim();
     
     console.log('[Translation] Final translation completed:', finalTranslation.substring(0, 100));

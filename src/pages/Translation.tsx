@@ -78,8 +78,13 @@ function Translation() {
           overallProgress = 66 + Math.round(stageProgress / 3);
         }
         
+        // 确保完成时达到 100%
+        if (stageProgress >= 100 && stage === 'final') {
+          overallProgress = 100;
+        }
+        
         updateProgress({
-          stage,
+          stage: stageProgress >= 100 ? 'idle' : stage,
           progress: overallProgress,
           directTranslation: stage === 'direct' && result ? result : currentProgress.directTranslation,
           issues: stage === 'issues' && result ? result : currentProgress.issues,
