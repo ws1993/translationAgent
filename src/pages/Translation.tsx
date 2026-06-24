@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TranslationMode, OutputFormat } from '../types';
 import { useTranslationStore, TranslationProgress } from '../stores/translationStore';
 import { useLLMConfigStore } from '../stores/llmConfigStore';
@@ -152,6 +152,17 @@ function Translation() {
   const { getActiveConfig } = useLLMConfigStore();
   const { categories, getCategoryById } = useDomainStore();
 
+  // 组件加载时，确保清理任何卡住的状态
+  useEffect(() => {
+    console.log('[Init] Checking translation state on mount');
+    if (isTranslating) {
+      console.log('[Init] Found stuck isTranslating=true, resetting...');
+      setIsTranslating(false);
+      updateProgress({ stage: 'idle', progress: 0 });
+      toast.warning('检测到未完成的翻译任务，已重置状态');
+    }
+  }, []); // 只在组件挂载时运行一次
+
   const handleTranslate = async () => {
     if (!sourceText.trim()) {
       toast.error('请输入需要翻译的文本');
@@ -166,7 +177,10 @@ function Translation() {
 
     setIsTranslating(true);
     updateProgress({ stage: 'idle', progress: 0 });
-    createTask(sourceText, mode, outputFormat, selectedDomainId || undefined);
+    
+    // 先创建任务
+    const newTask = createTask(sourceText, mode, outputFormat, selectedDomainId || undefined);
+    console.log('Created task:', newTask);
 
     try {
       const domainPrompt = selectedDomainId 
@@ -175,25 +189,53 @@ function Translation() {
       
       const translationService = new TranslationService(activeConfig, domainPrompt);
       
-      // 创建进度回调
+      // 创建进度回调，保持累积之前阶段的结果
       const onProgress = (stage: 'direct' | 'issues' | 'final', progress: number, result?: any) => {
+        const currentProgress = useTranslationStore.getState().progress;
+        
+        // 计算整体进度：每个阶段占 33.33%
+        let overallProgress = 0;
+        if (stage === 'direct') {
+          overallProgress = Math.round(progress / 3);
+        } else if (stage === 'issues') {
+          overallProgress = 33 + Math.round(progress / 3);
+        } else if (stage === 'final') {
+          overallProgress = 66 + Math.round(progress / 3);
+        }
+        
         const newProgress: TranslationProgress = {
           stage,
-          progress,
+          progress: overallProgress,
+          // 保留之前阶段的结果
+          directTranslation: currentProgress.directTranslation,
+          issues: currentProgress.issues,
+          finalTranslation: currentProgress.finalTranslation,
+          // 更新当前阶段的结果
           ...(stage === 'direct' && result ? { directTranslation: result } : {}),
           ...(stage === 'issues' && result ? { issues: result } : {}),
           ...(stage === 'final' && result ? { finalTranslation: result } : {}),
         };
+        
+        console.log('[Progress]', stage, progress, '->', overallProgress, '%');
         updateProgress(newProgress);
       };
       
       const result = await translationService.translate(sourceText, mode, undefined, onProgress);
       
-      if (currentTask) {
-        updateTaskResult(currentTask.id, result);
-      }
+      console.log('Translation result:', result);
+      console.log('Updating task:', newTask.id, 'with result:', result);
+      
+      updateTaskResult(newTask.id, result);
+      
+      // 验证更新后的状态
+      setTimeout(() => {
+        const updatedTask = useTranslationStore.getState().currentTask;
+        console.log('Updated task in store:', updatedTask);
+      }, 100);
+      
       toast.success('翻译完成');
     } catch (error: any) {
+      console.error('Translation error:', error);
       toast.error(`翻译失败: ${error.message}`);
     } finally {
       setIsTranslating(false);
@@ -300,9 +342,14 @@ function Translation() {
                 <Label>译文</Label>
               </div>
               <div className="flex-1 min-h-[400px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto">
-                {currentTask?.result?.finalTranslation || (
-                  <span className="text-muted/60">翻译结果将显示在此...</span>
-                )}
+                {(() => {
+                  console.log('[Render] currentTask:', currentTask);
+                  console.log('[Render] currentTask?.result:', currentTask?.result);
+                  console.log('[Render] finalTranslation:', currentTask?.result?.finalTranslation);
+                  return currentTask?.result?.finalTranslation || (
+                    <span className="text-muted/60">翻译结果将显示在此...</span>
+                  );
+                })()}
               </div>
             </div>
           </div>

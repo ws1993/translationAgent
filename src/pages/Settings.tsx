@@ -15,6 +15,7 @@ import {
 import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
+import { Trash2 } from 'lucide-react';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState<'llm' | 'webdav'>('llm');
@@ -40,7 +41,7 @@ function Settings() {
     conflictStrategy: 'prompt' as 'server' | 'local' | 'prompt',
   });
 
-  const { configs, addConfig, setActiveConfig, activeConfigId } = useLLMConfigStore();
+  const { configs, addConfig, setActiveConfig, activeConfigId, deleteConfig } = useLLMConfigStore();
   const { config: webdavConfig, setConfig: setWebdavConfig } = useWebDAVStore();
 
   useEffect(() => {
@@ -141,6 +142,26 @@ function Settings() {
     });
 
     toast.success('WebDAV 配置已保存');
+  };
+
+  const handleDeleteConfig = (configId: string) => {
+    toast(
+      '确定删除此配置吗？',
+      {
+        description: '删除后无法恢复',
+        action: {
+          label: '删除',
+          onClick: () => {
+            deleteConfig(configId);
+            toast.success('配置已删除');
+          },
+        },
+        cancel: {
+          label: '取消',
+          onClick: () => {},
+        },
+      }
+    );
   };
 
   return (
@@ -288,11 +309,24 @@ function Settings() {
                         {config.provider} · {config.model}
                       </div>
                     </div>
-                    {config.id === activeConfigId && (
-                      <span className="text-xs bg-accent text-white px-2 py-1 rounded">
-                        使用中
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {config.id === activeConfigId && (
+                        <span className="text-xs bg-accent text-white px-2 py-1 rounded">
+                          使用中
+                        </span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 h-auto"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteConfig(config.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

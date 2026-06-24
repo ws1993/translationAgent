@@ -63,13 +63,19 @@ ${sourceText}`;
     const targetLanguageName = targetLang === Language.ZH_CN ? '简体中文' : 'English';
     const sourceLanguageName = sourceLang === Language.ZH_CN ? '中文' : '英文';
     
-    const baseSystemPrompt = `你是一位精通${sourceLanguageName}和${targetLanguageName}的专业翻译。`;
+    const baseSystemPrompt = `你是一位精通${sourceLanguageName}和${targetLanguageName}的专业翻译。请确保输出的文本编码正确，使用UTF-8编码。`;
     
     // 第一步：直译
     onProgress?.('direct', 0);
     
-    const directTranslationPrompt = `${this.domainPrompt ? this.domainPrompt + '\n\n' : ''}请将以下${sourceLanguageName}文本直译成${targetLanguageName}，保持原有格式，不要遗漏任何信息：
+    const directTranslationPrompt = `${this.domainPrompt ? this.domainPrompt + '\n\n' : ''}请将以下${sourceLanguageName}文本直译成${targetLanguageName}，保持原有格式，不要遗漏任何信息。
 
+注意：
+- 请直接输出翻译结果
+- 不要添加任何解释或说明
+- 确保使用正确的字符编码
+
+原文：
 ${sourceText}`;
 
     const directMessages: LLMMessage[] = [
@@ -78,12 +84,13 @@ ${sourceText}`;
     ];
 
     const directResponse = await this.llmService.sendMessage(directMessages);
-    const directTranslation = directResponse.content;
+    const directTranslation = directResponse.content.trim();
     
-    onProgress?.('direct', 33, directTranslation);
+    console.log('[Translation] Direct translation completed:', directTranslation.substring(0, 100));
+    onProgress?.('direct', 100, directTranslation);
 
     // 第二步：问题分析
-    onProgress?.('issues', 33);
+    onProgress?.('issues', 0);
     
     const issuesPrompt = `根据以下直译结果，指出其中存在的具体问题。要准确描述，不宜笼统表示，包括但不仅限于：
 - 不符合${targetLanguageName}表达习惯的地方
@@ -93,7 +100,7 @@ ${sourceText}`;
 直译结果：
 ${directTranslation}
 
-请列出具体问题：`;
+请以列表形式列出具体问题：`;
 
     const issuesMessages: LLMMessage[] = [
       { role: 'system', content: baseSystemPrompt },
@@ -103,10 +110,11 @@ ${directTranslation}
     const issuesResponse = await this.llmService.sendMessage(issuesMessages);
     const issues = issuesResponse.content.split('\n').filter(line => line.trim());
     
-    onProgress?.('issues', 66, issues);
+    console.log('[Translation] Issues analysis completed:', issues.length, 'issues found');
+    onProgress?.('issues', 100, issues);
 
     // 第三步：意译
-    onProgress?.('final', 66);
+    onProgress?.('final', 0);
     
     const finalPrompt = `根据直译结果和指出的问题，重新进行意译。在保证内容原意的基础上，使其更易于理解，更符合${targetLanguageName}的表达习惯，同时保持原有的格式不变。
 
@@ -116,7 +124,11 @@ ${directTranslation}
 存在的问题：
 ${issues.join('\n')}
 
-请提供最终的意译结果（只需要译文，不需要其他说明）：`;
+注意：
+- 请直接输出最终的译文
+- 不要添加"意译结果："等前缀
+- 不要添加任何解释或说明
+- 确保使用正确的字符编码`;
 
     const finalMessages: LLMMessage[] = [
       { role: 'system', content: baseSystemPrompt },
@@ -124,13 +136,15 @@ ${issues.join('\n')}
     ];
 
     const finalResponse = await this.llmService.sendMessage(finalMessages);
+    const finalTranslation = finalResponse.content.trim();
     
-    onProgress?.('final', 100, finalResponse.content);
+    console.log('[Translation] Final translation completed:', finalTranslation.substring(0, 100));
+    onProgress?.('final', 100, finalTranslation);
 
     return {
       directTranslation,
       issues,
-      finalTranslation: finalResponse.content,
+      finalTranslation,
     };
   }
 

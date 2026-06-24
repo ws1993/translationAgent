@@ -70,6 +70,7 @@ function DomainManagement() {
       '确定删除此分类吗？',
       {
         description: '子分类也会被删除',
+        position: 'top-center',
         action: {
           label: '删除',
           onClick: () => {
