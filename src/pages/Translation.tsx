@@ -13,7 +13,8 @@ import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { toast } from 'sonner';
 import { ProfessionalTranslationModal } from '../components/translation/ProfessionalTranslationModal';
 import { TranslationReport } from '../components/translation/TranslationReport';
-import { FileText } from 'lucide-react';
+import { ParagraphComparisonModal } from '../components/translation/ParagraphComparisonModal';
+import { FileText, Columns } from 'lucide-react';
 
 function Translation() {
   const [sourceText, setSourceText] = useState('');
@@ -22,6 +23,7 @@ function Translation() {
   const [selectedDomainId, setSelectedDomainId] = useState<string>('');
   const [showProfessionalModal, setShowProfessionalModal] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showParagraphComparison, setShowParagraphComparison] = useState(false);
   
   const { currentTask, isTranslating, createTask, updateTaskResult, setIsTranslating, progress, updateProgress } = useTranslationStore();
   const { getActiveConfig } = useLLMConfigStore();
@@ -111,6 +113,7 @@ function Translation() {
 
   const displayResult = currentTask?.result?.finalTranslation || '';
   const canShowReport = mode === TranslationMode.PROFESSIONAL && currentTask?.result && !isTranslating;
+  const hasTranslation = displayResult && sourceText.trim();
 
   return (
     <div className="space-y-6">
@@ -148,69 +151,32 @@ function Translation() {
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <Label>输出格式</Label>
-            <ToggleGroup
-              value={outputFormat}
-              onValueChange={(value) => setOutputFormat(value as OutputFormat)}
-              disabled={isTranslating}
-            >
-              <ToggleGroupItem value={OutputFormat.BILINGUAL}>
-                对照显示
-              </ToggleGroupItem>
-              <ToggleGroupItem value={OutputFormat.TRANSLATION_ONLY}>
-                纯译文
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
         </div>
       </Card>
 
       <Card className="overflow-hidden shadow-lg mb-6">
-        {outputFormat === OutputFormat.BILINGUAL ? (
-          <div className="grid grid-cols-2 divide-x divide-border">
-            <div className="flex flex-col">
-              <div className="px-6 py-4 bg-surface-1 border-b border-border">
-                <Label>原文</Label>
-              </div>
-              <Textarea
-                value={sourceText}
-                onChange={(e) => setSourceText(e.target.value)}
-                className="flex-1 min-h-[400px] border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                placeholder="在此输入需要翻译的文本..."
-                disabled={isTranslating}
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="px-6 py-4 bg-surface-1 border-b border-border">
-                <Label>译文</Label>
-              </div>
-              <div className="flex-1 min-h-[400px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto">
-                {displayResult || '翻译结果将显示在这里...'}
-              </div>
-            </div>
-          </div>
-        ) : (
+        <div className="grid grid-cols-2 divide-x divide-border">
           <div className="flex flex-col">
             <div className="px-6 py-4 bg-surface-1 border-b border-border">
-              <Label>输入文本</Label>
+              <Label>原文</Label>
             </div>
             <Textarea
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
-              className="flex-1 min-h-[200px] border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="flex-1 min-h-[400px] border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
               placeholder="在此输入需要翻译的文本..."
               disabled={isTranslating}
             />
-            <div className="px-6 py-4 bg-surface-1 border-t border-border">
+          </div>
+          <div className="flex flex-col">
+            <div className="px-6 py-4 bg-surface-1 border-b border-border">
               <Label>译文</Label>
             </div>
-            <div className="flex-1 min-h-[200px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto">
+            <div className="flex-1 min-h-[400px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto whitespace-pre-wrap">
               {displayResult || '翻译结果将显示在这里...'}
             </div>
           </div>
-        )}
+        </div>
       </Card>
 
       <div className="flex items-center justify-between gap-4">
@@ -223,6 +189,18 @@ function Translation() {
           >
             {isTranslating ? '翻译中...' : '开始翻译'}
           </Button>
+
+          {hasTranslation && (
+            <Button
+              onClick={() => setShowParagraphComparison(true)}
+              variant="outline"
+              size="lg"
+              className="gap-2"
+            >
+              <Columns className="w-4 h-4" />
+              段落对照
+            </Button>
+          )}
 
           {canShowReport && (
             <Button
@@ -264,6 +242,18 @@ function Translation() {
           onClose={() => setShowReport(false)}
           sourceText={sourceText}
           result={currentTask.result}
+          sourceLang={detectedLang === 'zh-CN' ? '中文' : '英文'}
+          targetLang={targetLang}
+        />
+      )}
+
+      {/* 段落对照弹窗 */}
+      {hasTranslation && (
+        <ParagraphComparisonModal
+          isOpen={showParagraphComparison}
+          onClose={() => setShowParagraphComparison(false)}
+          sourceText={sourceText}
+          translatedText={displayResult}
           sourceLang={detectedLang === 'zh-CN' ? '中文' : '英文'}
           targetLang={targetLang}
         />
