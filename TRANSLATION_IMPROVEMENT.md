@@ -6,7 +6,7 @@
 - **位置**: `src/components/translation/ProfessionalTranslationModal.tsx`
 - **功能**:
   - 居中的模态弹窗，替代原有的页面内嵌入式展开
-  - 三个可切换的 Tab（直译、反思、最终译文）
+  - 三个可切换的 Tab（直译、问题分析、最终译文）
   - 自动跟随当前翻译阶段切换 Tab
   - 流式内容实时展示（通过 progress 状态更新）
   - 顶部进度条显示整体完成度

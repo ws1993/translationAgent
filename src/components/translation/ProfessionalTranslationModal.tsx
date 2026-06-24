@@ -36,7 +36,7 @@ export function ProfessionalTranslationModal({
 
   const tabs = [
     { key: 'direct' as const, label: '直译', description: '字面翻译' },
-    { key: 'issues' as const, label: '反思', description: '问题分析' },
+    { key: 'issues' as const, label: '问题分析', description: '专业视角' },
     { key: 'final' as const, label: '最终译文', description: '优化结果' },
   ];
 

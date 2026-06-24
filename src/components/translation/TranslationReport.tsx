@@ -76,7 +76,7 @@ export function TranslationReport({
                 {mode === 'domain_adaptive' ? '5 阶段' : '3 阶段'}
               </div>
               <div className="text-xs text-muted mt-1">
-                {mode === 'domain_adaptive' ? '领域识别 · 术语生成 · 翻译优化' : '直译 · 反思 · 意译'}
+                {mode === 'domain_adaptive' ? '领域识别 · 术语生成 · 翻译优化' : '直译 · 问题分析 · 意译'}
               </div>
             </div>
             
