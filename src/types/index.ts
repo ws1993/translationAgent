@@ -1,6 +1,7 @@
 export enum TranslationMode {
   QUICK = 'quick',
   PROFESSIONAL = 'professional',
+  DOMAIN_ADAPTIVE = 'domain_adaptive',
 }
 
 export enum OutputFormat {
@@ -39,6 +40,22 @@ export interface TranslationResult {
   directTranslation?: string;
   issues?: string[];
   finalTranslation: string;
+  domainInfo?: DomainInfo;
+  terminology?: TerminologyItem[];
+}
+
+export interface DomainInfo {
+  primaryDomain: string;
+  subDomain?: string;
+  confidence: number;
+  reasoning: string;
+}
+
+export interface TerminologyItem {
+  source: string;
+  target: string;
+  context?: string;
+  notes?: string;
 }
 
 export interface LLMConfig {

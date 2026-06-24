@@ -13,6 +13,7 @@ import { Label } from '../components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { toast } from 'sonner';
 import { ProfessionalTranslationModal } from '../components/translation/ProfessionalTranslationModal';
+import { DomainAdaptiveTranslationModal } from '../components/translation/DomainAdaptiveTranslationModal';
 import { TranslationReport } from '../components/translation/TranslationReport';
 import { ParagraphComparisonModal } from '../components/translation/ParagraphComparisonModal';
 import { FileText, Columns } from 'lucide-react';
@@ -23,20 +24,24 @@ function Translation() {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>(OutputFormat.BILINGUAL);
   const [selectedDomainId, setSelectedDomainId] = useState<string>('');
   const [showProfessionalModal, setShowProfessionalModal] = useState(false);
+  const [showDomainAdaptiveModal, setShowDomainAdaptiveModal] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showParagraphComparison, setShowParagraphComparison] = useState(false);
   
-  const { currentTask, isTranslating, createTask, updateTaskResult, setIsTranslating, progress, updateProgress } = useTranslationStore();
+  const { createTask, updateTaskResult, setIsTranslating, updateProgress, getModeState, resetMode, resetAllModes } = useTranslationStore();
   const { getActiveConfig } = useLLMConfigStore();
   const { categories, getCategoryById } = useDomainStore();
 
+  const modeState = getModeState(mode);
+  const { currentTask, isTranslating, progress } = modeState;
+
   useEffect(() => {
     if (isTranslating) {
-      setIsTranslating(false);
-      updateProgress({ stage: 'idle', progress: 0 });
+      setIsTranslating(mode, false);
+      updateProgress(mode, { stage: 'idle', progress: 0 });
       toast.warning('检测到未完成的翻译任务，已重置状态');
     }
-  }, []);
+  }, [mode]);
 
   const handleTranslate = async () => {
     if (!sourceText.trim()) {
@@ -57,59 +62,107 @@ function Translation() {
       toast.info('检测到短文本，自动使用快速模式以提升速度', { duration: 3000 });
     }
 
-    // 如果是专业模式，打开弹窗
+    // 打开对应模式的弹窗
     if (actualMode === TranslationMode.PROFESSIONAL) {
       setShowProfessionalModal(true);
+    } else if (actualMode === TranslationMode.DOMAIN_ADAPTIVE) {
+      setShowDomainAdaptiveModal(true);
     }
 
-    setIsTranslating(true);
-    updateProgress({ stage: 'idle', progress: 0 });
+    setIsTranslating(actualMode, true);
+    updateProgress(actualMode, { stage: 'idle', progress: 0 });
     
     const newTask = createTask(sourceText, actualMode, outputFormat, selectedDomainId || undefined);
 
     try {
-      const domainPrompt = selectedDomainId 
-        ? getCategoryById(selectedDomainId)?.prompt 
-        : undefined;
+      let result;
       
-      const translationService = new TranslationService(activeConfig, domainPrompt);
-      
-      const onProgress = (stage: 'direct' | 'issues' | 'final', stageProgress: number, result?: any) => {
-        const currentProgress = useTranslationStore.getState().progress;
+      if (actualMode === TranslationMode.DOMAIN_ADAPTIVE) {
+        const { DomainAdaptiveTranslationService } = await import('../services/translation/DomainAdaptiveTranslationService');
+        const domainAdaptiveService = new DomainAdaptiveTranslationService(activeConfig);
         
-        let overallProgress = 0;
-        if (stage === 'direct') {
-          overallProgress = Math.round(stageProgress / 3);
-        } else if (stage === 'issues') {
-          overallProgress = 33 + Math.round(stageProgress / 3);
-        } else if (stage === 'final') {
-          overallProgress = 66 + Math.round(stageProgress / 3);
-        }
+        const onProgress = (
+          stage: 'domain' | 'terminology' | 'direct' | 'issues' | 'final',
+          stageProgress: number,
+          stageResult?: any
+        ) => {
+          const currentModeState = useTranslationStore.getState().getModeState(actualMode);
+          const currentProgress = currentModeState.progress;
+          
+          let overallProgress = 0;
+          if (stage === 'domain') {
+            overallProgress = Math.round(stageProgress / 5);
+          } else if (stage === 'terminology') {
+            overallProgress = 20 + Math.round(stageProgress / 5);
+          } else if (stage === 'direct') {
+            overallProgress = 40 + Math.round(stageProgress / 5);
+          } else if (stage === 'issues') {
+            overallProgress = 60 + Math.round(stageProgress / 5);
+          } else if (stage === 'final') {
+            overallProgress = 80 + Math.round(stageProgress / 5);
+          }
+          
+          if (stageProgress >= 100 && stage === 'final') {
+            overallProgress = 100;
+          }
+          
+          updateProgress(actualMode, {
+            stage: stageProgress >= 100 ? 'idle' : stage,
+            progress: overallProgress,
+            domainInfo: stage === 'domain' && stageResult ? stageResult : currentProgress.domainInfo,
+            terminology: stage === 'terminology' && stageResult ? stageResult : currentProgress.terminology,
+            directTranslation: stage === 'direct' && stageResult ? stageResult : currentProgress.directTranslation,
+            issues: stage === 'issues' && stageResult ? stageResult : currentProgress.issues,
+            finalTranslation: stage === 'final' && stageResult ? stageResult : currentProgress.finalTranslation,
+          });
+        };
         
-        // 确保完成时达到 100%
-        if (stageProgress >= 100 && stage === 'final') {
-          overallProgress = 100;
-        }
+        result = await domainAdaptiveService.translate(sourceText, undefined, onProgress);
+      } else {
+        const domainPrompt = selectedDomainId 
+          ? getCategoryById(selectedDomainId)?.prompt 
+          : undefined;
         
-        updateProgress({
-          stage: stageProgress >= 100 ? 'idle' : stage,
-          progress: overallProgress,
-          directTranslation: stage === 'direct' && result ? result : currentProgress.directTranslation,
-          issues: stage === 'issues' && result ? result : currentProgress.issues,
-          finalTranslation: stage === 'final' && result ? result : currentProgress.finalTranslation,
-        });
-      };
+        const translationService = new TranslationService(activeConfig, domainPrompt);
+        
+        const onProgress = (stage: 'direct' | 'issues' | 'final', stageProgress: number, stageResult?: any) => {
+          const currentModeState = useTranslationStore.getState().getModeState(actualMode);
+          const currentProgress = currentModeState.progress;
+          
+          let overallProgress = 0;
+          if (stage === 'direct') {
+            overallProgress = Math.round(stageProgress / 3);
+          } else if (stage === 'issues') {
+            overallProgress = 33 + Math.round(stageProgress / 3);
+          } else if (stage === 'final') {
+            overallProgress = 66 + Math.round(stageProgress / 3);
+          }
+          
+          if (stageProgress >= 100 && stage === 'final') {
+            overallProgress = 100;
+          }
+          
+          updateProgress(actualMode, {
+            stage: stageProgress >= 100 ? 'idle' : stage,
+            progress: overallProgress,
+            directTranslation: stage === 'direct' && stageResult ? stageResult : currentProgress.directTranslation,
+            issues: stage === 'issues' && stageResult ? stageResult : currentProgress.issues,
+            finalTranslation: stage === 'final' && stageResult ? stageResult : currentProgress.finalTranslation,
+          });
+        };
+        
+        result = await translationService.translate(sourceText, actualMode, undefined, onProgress);
+      }
       
-      const result = await translationService.translate(sourceText, actualMode, undefined, onProgress);
-      
-      updateTaskResult(newTask.id, result);
+      updateTaskResult(actualMode, newTask.id, result);
       toast.success('翻译完成');
     } catch (error: any) {
       console.error('Translation error:', error);
       toast.error(`翻译失败: ${error.message}`);
       setShowProfessionalModal(false);
+      setShowDomainAdaptiveModal(false);
     } finally {
-      setIsTranslating(false);
+      setIsTranslating(actualMode, false);
     }
   };
 
@@ -125,8 +178,14 @@ function Translation() {
   const targetLang = detectedLang === 'zh-CN' ? '英文' : '中文';
 
   const displayResult = currentTask?.result?.finalTranslation || '';
-  const canShowReport = mode === TranslationMode.PROFESSIONAL && currentTask?.result && !isTranslating;
+  const canShowReport = (mode === TranslationMode.PROFESSIONAL || mode === TranslationMode.DOMAIN_ADAPTIVE) && currentTask?.result && !isTranslating;
   const hasTranslation = displayResult && sourceText.trim();
+
+  const handleSwitchToDomainAdaptive = () => {
+    setShowReport(false);
+    setMode(TranslationMode.DOMAIN_ADAPTIVE);
+    toast.info('已切换到领域自适应模式，请点击"开始翻译"重新翻译');
+  };
 
   return (
     <div className="space-y-6">
@@ -161,6 +220,9 @@ function Translation() {
               </ToggleGroupItem>
               <ToggleGroupItem value={TranslationMode.PROFESSIONAL}>
                 专业模式
+              </ToggleGroupItem>
+              <ToggleGroupItem value={TranslationMode.DOMAIN_ADAPTIVE}>
+                领域自适应
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -228,16 +290,31 @@ function Translation() {
           )}
         </div>
 
-        <Button
-          onClick={() => {
-            setSourceText('');
-            updateProgress({ stage: 'idle', progress: 0 });
-          }}
-          variant="ghost"
-          disabled={isTranslating}
-        >
-          清空
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => {
+              setSourceText('');
+              resetMode(mode);
+              toast.success('已重置当前模式');
+            }}
+            variant="ghost"
+            disabled={isTranslating}
+          >
+            重置
+          </Button>
+
+          <Button
+            onClick={() => {
+              setSourceText('');
+              resetAllModes();
+              toast.success('已重置所有模式');
+            }}
+            variant="outline"
+            disabled={isTranslating}
+          >
+            重置所有模式
+          </Button>
+        </div>
       </div>
 
       {/* 专业模式弹窗 */}
@@ -245,6 +322,14 @@ function Translation() {
         isOpen={showProfessionalModal}
         onClose={() => setShowProfessionalModal(false)}
         onComplete={() => setShowProfessionalModal(false)}
+        progress={progress}
+      />
+
+      {/* 领域自适应模式弹窗 */}
+      <DomainAdaptiveTranslationModal
+        isOpen={showDomainAdaptiveModal}
+        onClose={() => setShowDomainAdaptiveModal(false)}
+        onComplete={() => setShowDomainAdaptiveModal(false)}
         progress={progress}
       />
 
@@ -257,6 +342,8 @@ function Translation() {
           result={currentTask.result}
           sourceLang={detectedLang === 'zh-CN' ? '中文' : '英文'}
           targetLang={targetLang}
+          mode={mode === TranslationMode.DOMAIN_ADAPTIVE ? 'domain_adaptive' : 'professional'}
+          onSwitchToDomainAdaptive={mode === TranslationMode.PROFESSIONAL ? handleSwitchToDomainAdaptive : undefined}
         />
       )}
 

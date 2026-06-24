@@ -1,6 +1,5 @@
 import { X, FileText, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { TranslationResult } from '../../types';
-import ReactMarkdown from 'react-markdown';
 
 interface TranslationReportProps {
   isOpen: boolean;
@@ -9,6 +8,8 @@ interface TranslationReportProps {
   result: TranslationResult;
   sourceLang: string;
   targetLang: string;
+  mode?: 'professional' | 'domain_adaptive';
+  onSwitchToDomainAdaptive?: () => void;
 }
 
 export function TranslationReport({
@@ -18,11 +19,15 @@ export function TranslationReport({
   result,
   sourceLang,
   targetLang,
+  mode = 'professional',
+  onSwitchToDomainAdaptive,
 }: TranslationReportProps) {
   if (!isOpen) return null;
 
   const hasDirectTranslation = !!result.directTranslation;
   const issueCount = result.issues?.length || 0;
+  const hasDomainInfo = !!result.domainInfo;
+  const terminologyCount = result.terminology?.length || 0;
 
   return (
     <div
@@ -39,13 +44,13 @@ export function TranslationReport({
             <div>
               <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-3 py-1 rounded-full text-xs font-medium mb-3">
                 <FileText className="w-3 h-3" />
-                专业翻译报告
+                {mode === 'domain_adaptive' ? '领域自适应翻译报告' : '专业翻译报告'}
               </div>
               <h1 className="text-3xl font-serif font-bold tracking-tight">
                 Translation <span className="text-accent italic">Analysis Report</span>
               </h1>
               <p className="text-sm text-white/70 mt-2">
-                {sourceLang} → {targetLang} · 三阶段专业分析
+                {sourceLang} → {targetLang} · {mode === 'domain_adaptive' ? '五阶段智能增强' : '三阶段专业分析'}
               </p>
             </div>
             <button
@@ -66,36 +71,170 @@ export function TranslationReport({
                 <CheckCircle2 className="w-4 h-4" />
                 翻译阶段
               </div>
-              <div className="text-2xl font-serif font-semibold text-ink">3 阶段</div>
-              <div className="text-xs text-muted mt-1">直译 · 反思 · 意译</div>
-            </div>
-            
-            <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
-              <div className="flex items-center gap-2 text-muted text-sm mb-1">
-                <AlertCircle className="w-4 h-4" />
-                发现问题
-              </div>
-              <div className="text-2xl font-serif font-semibold text-accent">{issueCount} 项</div>
-              <div className="text-xs text-muted mt-1">已全部优化处理</div>
-            </div>
-            
-            <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
-              <div className="flex items-center gap-2 text-muted text-sm mb-1">
-                <FileText className="w-4 h-4" />
-                字符统计
-              </div>
               <div className="text-2xl font-serif font-semibold text-ink">
-                {sourceText.length}
+                {mode === 'domain_adaptive' ? '5 阶段' : '3 阶段'}
               </div>
-              <div className="text-xs text-muted mt-1">原文字符数</div>
+              <div className="text-xs text-muted mt-1">
+                {mode === 'domain_adaptive' ? '领域识别 · 术语生成 · 翻译优化' : '直译 · 反思 · 意译'}
+              </div>
             </div>
+            
+            {mode === 'domain_adaptive' && hasDomainInfo ? (
+              <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
+                <div className="flex items-center gap-2 text-muted text-sm mb-1">
+                  <CheckCircle2 className="w-4 h-4" />
+                  识别领域
+                </div>
+                <div className="text-2xl font-serif font-semibold text-accent">
+                  {result.domainInfo?.primaryDomain}
+                </div>
+                <div className="text-xs text-muted mt-1">
+                  {result.domainInfo?.subDomain || '通用领域'}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
+                <div className="flex items-center gap-2 text-muted text-sm mb-1">
+                  <AlertCircle className="w-4 h-4" />
+                  发现问题
+                </div>
+                <div className="text-2xl font-serif font-semibold text-accent">{issueCount} 项</div>
+                <div className="text-xs text-muted mt-1">已全部优化处理</div>
+              </div>
+            )}
+            
+            {mode === 'domain_adaptive' && terminologyCount > 0 ? (
+              <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
+                <div className="flex items-center gap-2 text-muted text-sm mb-1">
+                  <FileText className="w-4 h-4" />
+                  专业术语
+                </div>
+                <div className="text-2xl font-serif font-semibold text-ink">
+                  {terminologyCount} 个
+                </div>
+                <div className="text-xs text-muted mt-1">动态生成</div>
+              </div>
+            ) : (
+              <div className="bg-surface-light rounded-lg p-4 border border-warm-border">
+                <div className="flex items-center gap-2 text-muted text-sm mb-1">
+                  <FileText className="w-4 h-4" />
+                  字符统计
+                </div>
+                <div className="text-2xl font-serif font-semibold text-ink">
+                  {sourceText.length}
+                </div>
+                <div className="text-xs text-muted mt-1">原文字符数</div>
+              </div>
+            )}
           </div>
 
-          {/* Section 1: Original Text */}
+          {/* Switch to Domain Adaptive Button (Professional Mode Only) */}
+          {mode === 'professional' && onSwitchToDomainAdaptive && (
+            <div className="bg-gradient-to-r from-[#F0E3D0] to-[#FBF7EF] rounded-lg border border-[#C8853F]/30 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-serif font-bold text-[#1F2421] mb-2">
+                    对当前结果不满意？试试领域自适应翻译
+                  </h3>
+                  <p className="text-sm text-[#8A8A80] leading-relaxed">
+                    领域自适应模式会先智能识别文本所属专业领域，然后动态生成术语表，
+                    基于领域知识进行翻译，能显著提升专业术语的准确性和一致性。
+                  </p>
+                </div>
+                <button
+                  onClick={onSwitchToDomainAdaptive}
+                  className="flex-shrink-0 px-6 py-3 bg-[#C8853F] hover:bg-[#A86B2C] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                >
+                  <span>切换到领域翻译</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Section 1: Domain Info (Domain Adaptive Only) */}
+          {mode === 'domain_adaptive' && hasDomainInfo && (
+            <section>
+              <h2 className="text-xl font-serif font-semibold text-ink mb-3 flex items-center gap-2">
+                <span className="w-8 h-8 bg-accent/10 text-accent rounded-full flex items-center justify-center text-sm font-bold">
+                  1
+                </span>
+                领域识别结果
+              </h2>
+              <div className="bg-[#F0E3D0] rounded-lg border border-[#C8853F]/30 p-5">
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-xs text-[#8A8A80] mb-1">主要领域</p>
+                    <p className="text-lg font-bold text-[#C8853F]">{result.domainInfo?.primaryDomain}</p>
+                  </div>
+                  {result.domainInfo?.subDomain && (
+                    <div>
+                      <p className="text-xs text-[#8A8A80] mb-1">细分领域</p>
+                      <p className="text-lg font-bold text-[#A86B2C]">{result.domainInfo?.subDomain}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-[#8A8A80] mb-1">置信度</p>
+                    <p className="text-lg font-bold text-green-600">
+                      {Math.round((result.domainInfo?.confidence || 0) * 100)}%
+                    </p>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-[#C8853F]/20">
+                  <p className="text-xs text-[#8A8A80] mb-1">判断理由</p>
+                  <p className="text-sm text-[#1F2421]">{result.domainInfo?.reasoning}</p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Section 2: Terminology (Domain Adaptive Only) */}
+          {mode === 'domain_adaptive' && terminologyCount > 0 && (
+            <section>
+              <h2 className="text-xl font-serif font-semibold text-ink mb-3 flex items-center gap-2">
+                <span className="w-8 h-8 bg-accent/10 text-accent rounded-full flex items-center justify-center text-sm font-bold">
+                  2
+                </span>
+                专业术语表
+                <span className="text-xs text-muted font-normal ml-2">· 共 {terminologyCount} 个术语</span>
+              </h2>
+              <div className="space-y-2">
+                {result.terminology?.map((term, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-lg border border-warm-border p-4 flex items-start gap-4"
+                  >
+                    <span className="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-accent text-white text-sm font-bold rounded-full">
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="font-bold text-[#1F2421]">{term.source}</span>
+                        <span className="text-[#8A8A80]">→</span>
+                        <span className="font-bold text-[#C8853F]">{term.target}</span>
+                      </div>
+                      {term.context && (
+                        <p className="text-xs text-[#8A8A80]">
+                          <span className="font-semibold">场景：</span>{term.context}
+                        </p>
+                      )}
+                      {term.notes && (
+                        <p className="text-xs text-[#C8853F] mt-1">
+                          <span className="font-semibold">注意：</span>{term.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Section: Original Text */}
           <section>
             <h2 className="text-xl font-serif font-semibold text-ink mb-3 flex items-center gap-2">
               <span className="w-8 h-8 bg-accent/10 text-accent rounded-full flex items-center justify-center text-sm font-bold">
-                1
+                {mode === 'domain_adaptive' ? (hasDomainInfo && terminologyCount > 0 ? '3' : hasDomainInfo ? '2' : '1') : '1'}
               </span>
               原文内容
             </h2>
@@ -147,61 +286,81 @@ export function TranslationReport({
                       <div className="text-sm text-ink leading-relaxed">
                         {(() => {
                           // 移除开头的序号（如 "1. " "2. " 等）
-                          let cleanedIssue = issue.replace(/^\d+\.\s*/, '');
+                          let cleanedIssue = issue.replace(/^\d+\.\s*/, '').trim();
+                          
+                          // 移除所有 Markdown 格式标记
+                          // 移除代码块标记 ``` 和 `
+                          cleanedIssue = cleanedIssue.replace(/```[\s\S]*?```/g, (match) => {
+                            // 提取代码块内容
+                            return match.replace(/```\w*\n?/g, '').replace(/```/g, '');
+                          });
+                          cleanedIssue = cleanedIssue.replace(/`([^`]+)`/g, '$1');
+                          
+                          // 移除斜体标记 * 和 _
+                          cleanedIssue = cleanedIssue.replace(/\*([^*]+)\*/g, '$1');
+                          cleanedIssue = cleanedIssue.replace(/_([^_]+)_/g, '$1');
                           
                           // 检查是否包含冒号分隔的标题和内容
                           const colonIndex = cleanedIssue.indexOf('：');
                           if (colonIndex > 0 && colonIndex < 100) {
-                            const title = cleanedIssue.substring(0, colonIndex + 1);
-                            const content = cleanedIssue.substring(colonIndex + 1);
+                            const title = cleanedIssue.substring(0, colonIndex);
+                            const content = cleanedIssue.substring(colonIndex + 1).trim();
+                            
+                            // 处理标题中的加粗标记 **
+                            const titleText = title.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+                            // 处理内容中的加粗标记 **
+                            const processContent = (text: string) => {
+                              const parts: (string | JSX.Element)[] = [];
+                              let lastIndex = 0;
+                              const regex = /\*\*([^*]+?)\*\*/g;
+                              let match;
+                              
+                              while ((match = regex.exec(text)) !== null) {
+                                if (match.index > lastIndex) {
+                                  parts.push(text.substring(lastIndex, match.index));
+                                }
+                                parts.push(<strong key={match.index} className="font-bold">{match[1]}</strong>);
+                                lastIndex = match.index + match[0].length;
+                              }
+                              
+                              if (lastIndex < text.length) {
+                                parts.push(text.substring(lastIndex));
+                              }
+                              
+                              return parts.length > 0 ? parts : text;
+                            };
+                            
                             return (
-                              <>
-                                <div className="font-bold text-accent text-base mb-1">
-                                  <ReactMarkdown
-                                    components={{
-                                      p: ({ children }) => <span>{children}</span>,
-                                      strong: ({ children }) => <strong>{children}</strong>,
-                                    }}
-                                  >
-                                    {title}
-                                  </ReactMarkdown>
-                                </div>
-                                <div className="text-ink">
-                                  <ReactMarkdown
-                                    components={{
-                                      p: ({ children }) => <span>{children}</span>,
-                                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                                      em: ({ children }) => <em className="italic">{children}</em>,
-                                      code: ({ children }) => (
-                                        <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-warm-border">
-                                          {children}
-                                        </code>
-                                      ),
-                                    }}
-                                  >
-                                    {content}
-                                  </ReactMarkdown>
-                                </div>
-                              </>
+                              <span>
+                                <strong className="font-bold text-accent">{titleText}：</strong>
+                                {processContent(content)}
+                              </span>
                             );
                           }
-                          // 没有冒号，渲染整个内容
-                          return (
-                            <ReactMarkdown
-                              components={{
-                                p: ({ children }) => <p className="m-0">{children}</p>,
-                                strong: ({ children }) => <strong className="font-bold text-accent">{children}</strong>,
-                                em: ({ children }) => <em className="italic">{children}</em>,
-                                code: ({ children }) => (
-                                  <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-warm-border">
-                                    {children}
-                                  </code>
-                                ),
-                              }}
-                            >
-                              {cleanedIssue}
-                            </ReactMarkdown>
-                          );
+                          
+                          // 没有冒号，处理整个内容
+                          const processContent = (text: string) => {
+                            const parts: (string | JSX.Element)[] = [];
+                            let lastIndex = 0;
+                            const regex = /\*\*([^*]+?)\*\*/g;
+                            let match;
+                            
+                            while ((match = regex.exec(text)) !== null) {
+                              if (match.index > lastIndex) {
+                                parts.push(text.substring(lastIndex, match.index));
+                              }
+                              parts.push(<strong key={match.index} className="font-bold">{match[1]}</strong>);
+                              lastIndex = match.index + match[0].length;
+                            }
+                            
+                            if (lastIndex < text.length) {
+                              parts.push(text.substring(lastIndex));
+                            }
+                            
+                            return parts.length > 0 ? parts : text;
+                          };
+                          
+                          return <span>{processContent(cleanedIssue)}</span>;
                         })()}
                       </div>
                     </div>

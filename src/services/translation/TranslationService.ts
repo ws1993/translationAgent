@@ -24,8 +24,10 @@ export class TranslationService {
 
     if (mode === TranslationMode.QUICK) {
       return await this.quickTranslate(sourceText, detectedLang, targetLang);
-    } else {
+    } else if (mode === TranslationMode.PROFESSIONAL) {
       return await this.professionalTranslate(sourceText, detectedLang, targetLang, onProgress);
+    } else {
+      throw new Error('TranslationService does not support DOMAIN_ADAPTIVE mode. Use DomainAdaptiveTranslationService instead.');
     }
   }
 
@@ -70,10 +72,12 @@ ${sourceText}`;
     
     const directTranslationPrompt = `${this.domainPrompt ? this.domainPrompt + '\n\n' : ''}请将以下${sourceLanguageName}文本直译成${targetLanguageName}，保持原有格式，不要遗漏任何信息。
 
-注意：
-- 请直接输出翻译结果
-- 不要添加任何解释或说明
-- 确保使用正确的字符编码
+严格要求：
+- 【必须】直接输出翻译结果，不要添加任何前缀、标题或说明
+- 【禁止】添加"直译结果："、"翻译如下："等任何形式的前缀
+- 【禁止】在结尾添加任何总结、评论或说明
+- 【禁止】输出除了译文本身以外的任何内容
+- 【必须】确保使用正确的字符编码
 
 原文：
 ${sourceText}`;
@@ -126,11 +130,13 @@ ${directTranslation}
 存在的问题：
 ${issues.join('\n')}
 
-注意：
-- 请直接输出最终的译文
-- 不要添加"意译结果："等前缀
-- 不要添加任何解释或说明
-- 确保使用正确的字符编码`;
+严格要求：
+- 【必须】直接输出最终的译文，不要添加任何前缀、标题、说明或总结
+- 【禁止】添加"意译结果："、"最终译文："、"译文如下："等任何形式的前缀
+- 【禁止】在结尾添加任何总结、评论、说明或额外的话
+- 【禁止】输出除了译文本身以外的任何内容
+- 【必须】确保使用正确的字符编码
+- 【重要】你的输出应该可以直接作为最终译文使用，不需要任何后处理`;
 
     const finalMessages: LLMMessage[] = [
       { role: 'system', content: baseSystemPrompt },
