@@ -17,6 +17,7 @@ import {
 import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
+import { toast } from 'sonner';
 
 function Translation() {
   const [sourceText, setSourceText] = useState('');
@@ -30,13 +31,13 @@ function Translation() {
 
   const handleTranslate = async () => {
     if (!sourceText.trim()) {
-      alert('请输入需要翻译的文本');
+      toast.error('请输入需要翻译的文本');
       return;
     }
 
     const activeConfig = getActiveConfig();
     if (!activeConfig) {
-      alert('请先在设置页面配置大模型');
+      toast.error('请先在设置页面配置大模型');
       return;
     }
 
@@ -54,8 +55,9 @@ function Translation() {
       if (currentTask) {
         updateTaskResult(currentTask.id, result);
       }
+      toast.success('翻译完成');
     } catch (error: any) {
-      alert(`翻译失败: ${error.message}`);
+      toast.error(`翻译失败: ${error.message}`);
     } finally {
       setIsTranslating(false);
     }
@@ -86,7 +88,7 @@ function Translation() {
       </header>
 
       <Card className="p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <Label>翻译模式</Label>
             <ToggleGroup
@@ -117,7 +119,7 @@ function Translation() {
             </ToggleGroup>
           </div>
 
-          <div className="flex flex-col gap-2">
+          {/* <div className="flex flex-col gap-2">
             <Label>专业领域</Label>
             <Select value={selectedDomainId} onValueChange={setSelectedDomainId}>
               <SelectTrigger>
@@ -132,7 +134,7 @@ function Translation() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
       </Card>
 

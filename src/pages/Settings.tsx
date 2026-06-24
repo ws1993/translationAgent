@@ -14,6 +14,7 @@ import {
 } from '../components/ui/select-radix';
 import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
+import { toast } from 'sonner';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState<'llm' | 'webdav'>('llm');
@@ -57,7 +58,7 @@ function Settings() {
 
   const handleSaveLLMConfig = () => {
     if (!llmForm.name || !llmForm.apiKey || !llmForm.model) {
-      alert('请填写必填项');
+      toast.error('请填写必填项');
       return;
     }
 
@@ -72,7 +73,7 @@ function Settings() {
       isActive: false,
     });
 
-    alert('配置已保存');
+    toast.success('配置已保存');
     setLLMForm({
       name: '',
       provider: 'openai',
@@ -86,7 +87,7 @@ function Settings() {
 
   const handleTestLLM = async () => {
     if (!llmForm.apiKey || !llmForm.model) {
-      alert('请先填写 API Key 和模型');
+      toast.error('请先填写 API Key 和模型');
       return;
     }
 
@@ -110,8 +111,14 @@ function Settings() {
       const success = await llmService.testConnection();
 
       setLLMTestResult(success ? 'success' : 'error');
+      if (success) {
+        toast.success('连接成功');
+      } else {
+        toast.error('连接失败');
+      }
     } catch (error: any) {
       setLLMTestResult('error');
+      toast.error('连接失败');
       console.error('Test failed:', error);
     } finally {
       setTestingLLM(false);
@@ -120,7 +127,7 @@ function Settings() {
 
   const handleSaveWebDAV = () => {
     if (!webdavForm.url || !webdavForm.username || !webdavForm.password) {
-      alert('请填写所有字段');
+      toast.error('请填写所有字段');
       return;
     }
 
@@ -133,7 +140,7 @@ function Settings() {
       conflictStrategy: webdavForm.conflictStrategy,
     });
 
-    alert('WebDAV 配置已保存');
+    toast.success('WebDAV 配置已保存');
   };
 
   return (

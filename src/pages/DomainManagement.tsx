@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Card } from '../components/ui/card';
+import { toast } from 'sonner';
 
 function DomainManagement() {
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -26,20 +27,22 @@ function DomainManagement() {
 
   const handleAddLevel1 = () => {
     if (!newCategoryName.trim()) {
-      alert('请输入分类名称');
+      toast.error('请输入分类名称');
       return;
     }
     addCategory(newCategoryName, null);
     setNewCategoryName('');
+    toast.success('分类已添加');
   };
 
   const handleAddLevel2 = (parentId: string) => {
     if (!newSubCategoryName.trim()) {
-      alert('请输入子分类名称');
+      toast.error('请输入子分类名称');
       return;
     }
     addCategory(newSubCategoryName, parentId);
     setNewSubCategoryName('');
+    toast.success('子分类已添加');
   };
 
   const handleSelectCategory = (categoryId: string) => {
@@ -56,16 +59,30 @@ function DomainManagement() {
     const cat = getCategoryById(selectedCategoryId);
     if (cat && cat.level === 2) {
       updateCategory(selectedCategoryId, { prompt: editingPrompt });
-      alert('提示词已保存');
+      toast.success('提示词已保存');
     } else {
-      alert('只能为二级分类设置提示词');
+      toast.error('只能为二级分类设置提示词');
     }
   };
 
   const handleDelete = (categoryId: string) => {
-    if (confirm('确定删除此分类吗？子分类也会被删除。')) {
-      deleteCategory(categoryId);
-    }
+    toast(
+      '确定删除此分类吗？',
+      {
+        description: '子分类也会被删除',
+        action: {
+          label: '删除',
+          onClick: () => {
+            deleteCategory(categoryId);
+            toast.success('分类已删除');
+          },
+        },
+        cancel: {
+          label: '取消',
+          onClick: () => {},
+        },
+      }
+    );
   };
 
   return (
