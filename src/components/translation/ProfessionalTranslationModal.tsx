@@ -25,11 +25,7 @@ export function ProfessionalTranslationModal({
     }
   }, [progress.stage]);
 
-  useEffect(() => {
-    if (progress.progress >= 100 && progress.finalTranslation) {
-      onComplete();
-    }
-  }, [progress.progress, progress.finalTranslation, onComplete]);
+  // 移除自动关闭逻辑，让用户手动查看完整结果后关闭
 
   useEffect(() => {
     contentEndRef.current?.scrollIntoView({ behavior: 'smooth' });

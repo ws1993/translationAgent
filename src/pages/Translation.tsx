@@ -5,6 +5,7 @@ import { useLLMConfigStore } from '../stores/llmConfigStore';
 import { useDomainStore } from '../stores/domainStore';
 import { TranslationService } from '../services/translation/TranslationService';
 import { detectLanguage } from '../utils/languageDetector';
+import { shouldUseProfessionalMode } from '../utils/translationOptimizer';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Card } from '../components/ui/card';
@@ -49,15 +50,22 @@ function Translation() {
       return;
     }
 
+    // 智能判断：如果用户选择专业模式，但文本是短文本，自动降级为快速模式
+    let actualMode = mode;
+    if (mode === TranslationMode.PROFESSIONAL && !shouldUseProfessionalMode(sourceText)) {
+      actualMode = TranslationMode.QUICK;
+      toast.info('检测到短文本，自动使用快速模式以提升速度', { duration: 3000 });
+    }
+
     // 如果是专业模式，打开弹窗
-    if (mode === TranslationMode.PROFESSIONAL) {
+    if (actualMode === TranslationMode.PROFESSIONAL) {
       setShowProfessionalModal(true);
     }
 
     setIsTranslating(true);
     updateProgress({ stage: 'idle', progress: 0 });
     
-    const newTask = createTask(sourceText, mode, outputFormat, selectedDomainId || undefined);
+    const newTask = createTask(sourceText, actualMode, outputFormat, selectedDomainId || undefined);
 
     try {
       const domainPrompt = selectedDomainId 
@@ -92,7 +100,7 @@ function Translation() {
         });
       };
       
-      const result = await translationService.translate(sourceText, mode, undefined, onProgress);
+      const result = await translationService.translate(sourceText, actualMode, undefined, onProgress);
       
       updateTaskResult(newTask.id, result);
       toast.success('翻译完成');
@@ -105,12 +113,12 @@ function Translation() {
     }
   };
 
-  const handleModalComplete = () => {
-    setShowReport(false);
-  };
-
   const handleViewReport = () => {
     setShowReport(true);
+  };
+
+  const handleCloseReport = () => {
+    setShowReport(false);
   };
 
   const detectedLang = sourceText ? detectLanguage(sourceText) : null;
@@ -236,7 +244,7 @@ function Translation() {
       <ProfessionalTranslationModal
         isOpen={showProfessionalModal}
         onClose={() => setShowProfessionalModal(false)}
-        onComplete={handleModalComplete}
+        onComplete={() => setShowProfessionalModal(false)}
         progress={progress}
       />
 

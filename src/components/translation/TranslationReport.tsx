@@ -1,5 +1,6 @@
 import { X, FileText, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { TranslationResult } from '../../types';
+import ReactMarkdown from 'react-markdown';
 
 interface TranslationReportProps {
   isOpen: boolean;
@@ -142,8 +143,27 @@ export function TranslationReport({
                     <div className="flex-shrink-0 w-7 h-7 bg-accent text-white rounded-full flex items-center justify-center text-xs font-bold">
                       {idx + 1}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-ink leading-relaxed">{issue}</p>
+                    <div className="flex-1 prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => (
+                            <p className="text-sm text-ink leading-relaxed m-0">{children}</p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold text-accent-hover">{children}</strong>
+                          ),
+                          em: ({ children }) => (
+                            <em className="italic text-ink">{children}</em>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-ink border border-warm-border">
+                              {children}
+                            </code>
+                          ),
+                        }}
+                      >
+                        {issue}
+                      </ReactMarkdown>
                     </div>
                     <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-1" />
                   </div>
