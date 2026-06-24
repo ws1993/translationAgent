@@ -143,27 +143,67 @@ export function TranslationReport({
                     <div className="flex-shrink-0 w-7 h-7 bg-accent text-white rounded-full flex items-center justify-center text-xs font-bold">
                       {idx + 1}
                     </div>
-                    <div className="flex-1 prose prose-sm max-w-none">
-                      <ReactMarkdown
-                        components={{
-                          p: ({ children }) => (
-                            <p className="text-sm text-ink leading-relaxed m-0">{children}</p>
-                          ),
-                          strong: ({ children }) => (
-                            <strong className="font-semibold text-accent-hover">{children}</strong>
-                          ),
-                          em: ({ children }) => (
-                            <em className="italic text-ink">{children}</em>
-                          ),
-                          code: ({ children }) => (
-                            <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-ink border border-warm-border">
-                              {children}
-                            </code>
-                          ),
-                        }}
-                      >
-                        {issue}
-                      </ReactMarkdown>
+                    <div className="flex-1">
+                      <div className="text-sm text-ink leading-relaxed">
+                        {(() => {
+                          // 移除开头的序号（如 "1. " "2. " 等）
+                          let cleanedIssue = issue.replace(/^\d+\.\s*/, '');
+                          
+                          // 检查是否包含冒号分隔的标题和内容
+                          const colonIndex = cleanedIssue.indexOf('：');
+                          if (colonIndex > 0 && colonIndex < 100) {
+                            const title = cleanedIssue.substring(0, colonIndex + 1);
+                            const content = cleanedIssue.substring(colonIndex + 1);
+                            return (
+                              <>
+                                <div className="font-bold text-accent text-base mb-1">
+                                  <ReactMarkdown
+                                    components={{
+                                      p: ({ children }) => <span>{children}</span>,
+                                      strong: ({ children }) => <strong>{children}</strong>,
+                                    }}
+                                  >
+                                    {title}
+                                  </ReactMarkdown>
+                                </div>
+                                <div className="text-ink">
+                                  <ReactMarkdown
+                                    components={{
+                                      p: ({ children }) => <span>{children}</span>,
+                                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                                      em: ({ children }) => <em className="italic">{children}</em>,
+                                      code: ({ children }) => (
+                                        <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-warm-border">
+                                          {children}
+                                        </code>
+                                      ),
+                                    }}
+                                  >
+                                    {content}
+                                  </ReactMarkdown>
+                                </div>
+                              </>
+                            );
+                          }
+                          // 没有冒号，渲染整个内容
+                          return (
+                            <ReactMarkdown
+                              components={{
+                                p: ({ children }) => <p className="m-0">{children}</p>,
+                                strong: ({ children }) => <strong className="font-bold text-accent">{children}</strong>,
+                                em: ({ children }) => <em className="italic">{children}</em>,
+                                code: ({ children }) => (
+                                  <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-warm-border">
+                                    {children}
+                                  </code>
+                                ),
+                              }}
+                            >
+                              {cleanedIssue}
+                            </ReactMarkdown>
+                          );
+                        })()}
+                      </div>
                     </div>
                     <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-1" />
                   </div>

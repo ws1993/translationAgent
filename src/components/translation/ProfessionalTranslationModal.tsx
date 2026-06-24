@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { TranslationProgress } from '../../stores/translationStore';
+import ReactMarkdown from 'react-markdown';
 
 interface ProfessionalTranslationModalProps {
   isOpen: boolean;
@@ -230,7 +231,68 @@ export function ProfessionalTranslationModal({
                       <span className="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-[#C8853F] text-white text-sm font-bold rounded-full mt-0.5">
                         {idx + 1}
                       </span>
-                      <p className="text-sm text-[#1F2421] leading-relaxed flex-1">{issue}</p>
+                      <div className="flex-1">
+                        <div className="text-sm text-[#1F2421] leading-relaxed">
+                          {(() => {
+                            // 移除开头的序号（如 "1. " "2. " 等）
+                            let cleanedIssue = issue.replace(/^\d+\.\s*/, '');
+                            
+                            // 检查是否包含冒号分隔的标题和内容
+                            const colonIndex = cleanedIssue.indexOf('：');
+                            if (colonIndex > 0 && colonIndex < 100) {
+                              const title = cleanedIssue.substring(0, colonIndex + 1);
+                              const content = cleanedIssue.substring(colonIndex + 1);
+                              return (
+                                <>
+                                  <div className="font-bold text-[#C8853F] text-base mb-1">
+                                    <ReactMarkdown
+                                      components={{
+                                        p: ({ children }) => <span>{children}</span>,
+                                        strong: ({ children }) => <strong>{children}</strong>,
+                                      }}
+                                    >
+                                      {title}
+                                    </ReactMarkdown>
+                                  </div>
+                                  <div className="text-[#1F2421]">
+                                    <ReactMarkdown
+                                      components={{
+                                        p: ({ children }) => <span>{children}</span>,
+                                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                                        em: ({ children }) => <em className="italic">{children}</em>,
+                                        code: ({ children }) => (
+                                          <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-[#E2D9C8]">
+                                            {children}
+                                          </code>
+                                        ),
+                                      }}
+                                    >
+                                      {content}
+                                    </ReactMarkdown>
+                                  </div>
+                                </>
+                              );
+                            }
+                            // 没有冒号，渲染整个内容
+                            return (
+                              <ReactMarkdown
+                                components={{
+                                  p: ({ children }) => <p className="m-0">{children}</p>,
+                                  strong: ({ children }) => <strong className="font-bold text-[#C8853F]">{children}</strong>,
+                                  em: ({ children }) => <em className="italic">{children}</em>,
+                                  code: ({ children }) => (
+                                    <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono border border-[#E2D9C8]">
+                                      {children}
+                                    </code>
+                                  ),
+                                }}
+                              >
+                                {cleanedIssue}
+                              </ReactMarkdown>
+                            );
+                          })()}
+                        </div>
+                      </div>
                     </div>
                   ))}
                   <div ref={contentEndRef} />
