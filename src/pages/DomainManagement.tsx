@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { useDomainStore } from '../stores/domainStore';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Card } from '../components/ui/card';
 
 function DomainManagement() {
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -74,25 +78,22 @@ function DomainManagement() {
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        <div className="bg-surface rounded-lg border border-border p-4 shadow-sm">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-ink">领域分类</h3>
           </div>
 
           <div className="mb-4 flex gap-2">
-            <input
+            <Input
               type="text"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               placeholder="新一级分类"
-              className="flex-1 px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
+              className="text-sm"
             />
-            <button
-              onClick={handleAddLevel1}
-              className="px-3 py-1 text-sm bg-accent text-white rounded hover:bg-accent-hover"
-            >
+            <Button onClick={handleAddLevel1} size="sm">
               添加
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-1 text-sm">
@@ -101,72 +102,76 @@ function DomainManagement() {
               return (
                 <div key={cat.id} className="space-y-1">
                   <div
-                    className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                       selectedCategoryId === cat.id
                         ? 'bg-accent/10 text-accent'
-                        : 'hover:bg-gray-50 text-ink'
+                        : 'hover:bg-accent-tint text-ink'
                     }`}
                     onClick={() => handleSelectCategory(cat.id)}
                   >
                     <span className="font-medium">{cat.name}</span>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(cat.id);
                       }}
-                      className="text-muted hover:text-red-600 text-xs"
+                      className="text-muted hover:text-red-600 text-xs h-auto p-1"
                     >
                       删除
-                    </button>
+                    </Button>
                   </div>
 
                   {children.map((child) => (
                     <div
                       key={child.id}
-                      className={`flex items-center justify-between pl-6 pr-2 py-1 rounded cursor-pointer transition-colors ${
+                      className={`flex items-center justify-between pl-6 pr-2 py-1 rounded-lg cursor-pointer transition-colors ${
                         selectedCategoryId === child.id
                           ? 'bg-accent/10 text-accent'
-                          : 'hover:bg-gray-50 text-muted'
+                          : 'hover:bg-accent-tint text-muted'
                       }`}
                       onClick={() => handleSelectCategory(child.id)}
                     >
                       <span className="text-xs">└ {child.name}</span>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(child.id);
                         }}
-                        className="text-muted hover:text-red-600 text-xs"
+                        className="text-muted hover:text-red-600 text-xs h-auto p-1"
                       >
                         删除
-                      </button>
+                      </Button>
                     </div>
                   ))}
 
                   {selectedCategoryId === cat.id && cat.level === 1 && (
                     <div className="pl-6 pr-2 py-1 flex gap-2">
-                      <input
+                      <Input
                         type="text"
                         value={newSubCategoryName}
                         onChange={(e) => setNewSubCategoryName(e.target.value)}
                         placeholder="新二级分类"
-                        className="flex-1 px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        className="text-xs"
                       />
-                      <button
+                      <Button
                         onClick={() => handleAddLevel2(cat.id)}
-                        className="px-2 py-1 text-xs bg-accent text-white rounded hover:bg-accent-hover"
+                        size="sm"
                       >
                         添加
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
+        </Card>
 
-        <div className="col-span-2 bg-surface rounded-lg border border-border p-6 shadow-sm">
+        <Card className="col-span-2 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-ink">
               {selectedCategory
@@ -174,12 +179,9 @@ function DomainManagement() {
                 : '提示词编辑'}
             </h3>
             {selectedCategory && selectedCategory.level === 2 && (
-              <button
-                onClick={handleSavePrompt}
-                className="px-3 py-1 text-sm bg-accent text-white rounded hover:bg-accent-hover"
-              >
+              <Button onClick={handleSavePrompt}>
                 保存
-              </button>
+              </Button>
             )}
           </div>
 
@@ -193,10 +195,10 @@ function DomainManagement() {
             </div>
           ) : (
             <>
-              <textarea
+              <Textarea
                 value={editingPrompt}
                 onChange={(e) => setEditingPrompt(e.target.value)}
-                className="w-full h-80 p-4 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none mb-4"
+                className="h-80 mb-4"
                 placeholder="领域约束提示词将显示在此...
 
 示例格式：
@@ -221,7 +223,7 @@ function DomainManagement() {
               </div>
             </>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

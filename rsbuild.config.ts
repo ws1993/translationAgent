@@ -10,6 +10,9 @@ export default defineConfig({
     entry: {
       index: './src/index.tsx',
     },
+    alias: {
+      '@': './src',
+    },
   },
   output: {
     distPath: {

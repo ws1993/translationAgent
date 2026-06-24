@@ -3,6 +3,17 @@ import { useLLMConfigStore } from '../stores/llmConfigStore';
 import { useWebDAVStore } from '../stores/webdavStore';
 import { LLMService } from '../services/llm/LLMService';
 import { LLMConfig } from '../types';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select-radix';
+import { Card } from '../components/ui/card';
+import { Label } from '../components/ui/label';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState<'llm' | 'webdav'>('llm');
@@ -159,91 +170,84 @@ function Settings() {
 
       {activeTab === 'llm' && (
         <div className="space-y-6">
-          <div className="bg-surface rounded-lg border border-border p-6 shadow-sm">
+          <Card className="p-6">
             <h3 className="text-xl font-serif font-medium text-ink mb-4">
               新增大模型配置
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  配置名称 *
-                </label>
-                <input
+                <Label className="mb-2 block">配置名称 *</Label>
+                <Input
                   type="text"
                   value={llmForm.name}
                   onChange={(e) => setLLMForm({ ...llmForm, name: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                   placeholder="例如：OpenAI GPT-4"
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  提供商 *
-                </label>
-                <select
+                <Label className="mb-2 block">提供商 *</Label>
+                <Select
                   value={llmForm.provider}
-                  onChange={(e) => setLLMForm({ ...llmForm, provider: e.target.value as any })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  onValueChange={(value) => setLLMForm({ ...llmForm, provider: value as any })}
                 >
-                  <option value="openai">OpenAI</option>
-                  <option value="anthropic">Anthropic</option>
-                  <option value="custom">自定义</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="openai">OpenAI</SelectItem>
+                    <SelectItem value="anthropic">Anthropic</SelectItem>
+                    <SelectItem value="custom">自定义</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  API Key *
-                </label>
-                <input
+                <Label className="mb-2 block">API Key *</Label>
+                <Input
                   type="password"
                   value={llmForm.apiKey}
                   onChange={(e) => setLLMForm({ ...llmForm, apiKey: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                   placeholder="sk-..."
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  Base URL（可选）
-                </label>
-                <input
+                <Label className="mb-2 block">Base URL（可选）</Label>
+                <Input
                   type="url"
                   value={llmForm.baseUrl}
                   onChange={(e) => setLLMForm({ ...llmForm, baseUrl: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                   placeholder="https://api.openai.com/v1"
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  模型 *
-                </label>
-                <input
+                <Label className="mb-2 block">模型 *</Label>
+                <Input
                   type="text"
                   value={llmForm.model}
                   onChange={(e) => setLLMForm({ ...llmForm, model: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                   placeholder="gpt-4"
                 />
               </div>
+              
               <div className="flex gap-4">
-                <button
+                <Button
                   onClick={handleTestLLM}
                   disabled={testingLLM}
-                  className="px-4 py-2 border border-accent text-accent rounded hover:bg-accent hover:text-white transition-colors disabled:opacity-50"
+                  variant="outline"
                 >
                   {testingLLM ? '测试中...' : '测试连接'}
-                </button>
-                <button
-                  onClick={handleSaveLLMConfig}
-                  className="px-4 py-2 bg-accent text-white rounded hover:bg-accent-hover transition-colors"
-                >
+                </Button>
+                <Button onClick={handleSaveLLMConfig}>
                   保存配置
-                </button>
+                </Button>
               </div>
+              
               {llmTestResult && (
                 <div
-                  className={`p-3 rounded text-sm ${
+                  className={`p-3 rounded-lg text-sm ${
                     llmTestResult === 'success'
                       ? 'bg-green-50 text-green-700 border border-green-200'
                       : 'bg-red-50 text-red-700 border border-red-200'
@@ -253,10 +257,10 @@ function Settings() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
           {configs.length > 0 && (
-            <div className="bg-surface rounded-lg border border-border p-6 shadow-sm">
+            <Card className="p-6">
               <h3 className="text-xl font-serif font-medium text-ink mb-4">
                 已保存的配置
               </h3>
@@ -264,7 +268,7 @@ function Settings() {
                 {configs.map((config) => (
                   <div
                     key={config.id}
-                    className={`flex items-center justify-between p-3 border rounded cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
                       config.id === activeConfigId
                         ? 'border-accent bg-accent/5'
                         : 'border-border hover:border-accent/50'
@@ -285,106 +289,51 @@ function Settings() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
         </div>
       )}
 
       {activeTab === 'webdav' && (
-        <div className="bg-surface rounded-lg border border-border p-6 shadow-sm">
+        <Card className="p-6">
           <h3 className="text-xl font-serif font-medium text-ink mb-4">
             WebDAV 同步配置
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-ink mb-2">
-                服务器地址
-              </label>
-              <input
+              <Label className="mb-2 block">服务器地址</Label>
+              <Input
                 type="url"
                 value={webdavForm.url}
                 onChange={(e) => setWebdavForm({ ...webdavForm, url: e.target.value })}
-                className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                 placeholder="https://dav.example.com"
               />
             </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  用户名
-                </label>
-                <input
+                <Label className="mb-2 block">用户名</Label>
+                <Input
                   type="text"
                   value={webdavForm.username}
                   onChange={(e) => setWebdavForm({ ...webdavForm, username: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">
-                  密码
-                </label>
-                <input
+                <Label className="mb-2 block">密码</Label>
+                <Input
                   type="password"
                   value={webdavForm.password}
                   onChange={(e) => setWebdavForm({ ...webdavForm, password: e.target.value })}
-                  className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="autoSync"
-                checked={webdavForm.autoSync}
-                onChange={(e) => setWebdavForm({ ...webdavForm, autoSync: e.target.checked })}
-                className="rounded"
-              />
-              <label htmlFor="autoSync" className="text-sm text-ink">
-                启用自动同步
-              </label>
-            </div>
-            {webdavForm.autoSync && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-ink mb-2">
-                    同步周期（分钟）
-                  </label>
-                  <select
-                    value={webdavForm.syncInterval}
-                    onChange={(e) => setWebdavForm({ ...webdavForm, syncInterval: Number(e.target.value) })}
-                    className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  >
-                    <option value={5}>5 分钟</option>
-                    <option value={15}>15 分钟</option>
-                    <option value={30}>30 分钟</option>
-                    <option value={60}>1 小时</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink mb-2">
-                    冲突处理策略
-                  </label>
-                  <select
-                    value={webdavForm.conflictStrategy}
-                    onChange={(e) => setWebdavForm({ ...webdavForm, conflictStrategy: e.target.value as any })}
-                    className="w-full p-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  >
-                    <option value="server">服务端优先</option>
-                    <option value="local">本地优先</option>
-                    <option value="prompt">提示用户</option>
-                  </select>
-                </div>
-              </>
-            )}
-            <button
-              onClick={handleSaveWebDAV}
-              className="px-4 py-2 bg-accent text-white rounded hover:bg-accent-hover transition-colors"
-            >
+            
+            <Button onClick={handleSaveWebDAV}>
               保存配置
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

@@ -16,15 +16,59 @@
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-family-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-background);
-  color: var(--color-ink);
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-background);
+    color: var(--color-ink);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-serif);
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family-serif);
+@layer components {
+  .bg-background {
+    background-color: var(--color-background);
+  }
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+  .bg-surface-1 {
+    background-color: var(--color-surface-1);
+  }
+  .border-border {
+    border-color: var(--color-border);
+  }
+  .text-ink {
+    color: var(--color-ink);
+  }
+  .text-muted {
+    color: var(--color-muted);
+  }
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+  .text-accent {
+    color: var(--color-accent);
+  }
+  .bg-accent-hover {
+    background-color: var(--color-accent-hover);
+  }
+  .text-accent-hover {
+    color: var(--color-accent-hover);
+  }
+  .bg-accent-tint {
+    background-color: var(--color-accent-tint);
+  }
+  .border-accent {
+    border-color: var(--color-accent);
+  }
+  .ring-accent {
+    --tw-ring-color: var(--color-accent);
+  }
 }
