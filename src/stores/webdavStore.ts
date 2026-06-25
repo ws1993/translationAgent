@@ -6,11 +6,14 @@ interface WebDAVStore {
   config: WebDAVConfig | null;
   isSyncing: boolean;
   lastSyncStatus: 'success' | 'error' | null;
+  lastSyncMessage: string | null;
+  lastSyncAt: string | null;
   
   setConfig: (config: WebDAVConfig) => void;
   updateConfig: (updates: Partial<WebDAVConfig>) => void;
   setIsSyncing: (isSyncing: boolean) => void;
-  setLastSyncStatus: (status: 'success' | 'error' | null) => void;
+  setSyncResult: (status: 'success' | 'error' | null, message: string | null) => void;
+  updateLastSyncAt: () => void;
 }
 
 export const useWebDAVStore = create<WebDAVStore>()(
@@ -19,6 +22,8 @@ export const useWebDAVStore = create<WebDAVStore>()(
       config: null,
       isSyncing: false,
       lastSyncStatus: null,
+      lastSyncMessage: null,
+      lastSyncAt: null,
 
       setConfig: (config) => set({ config }),
       
@@ -29,7 +34,15 @@ export const useWebDAVStore = create<WebDAVStore>()(
       },
 
       setIsSyncing: (isSyncing) => set({ isSyncing }),
-      setLastSyncStatus: (status) => set({ lastSyncStatus: status }),
+      
+      setSyncResult: (status, message) => set({ 
+        lastSyncStatus: status,
+        lastSyncMessage: message,
+      }),
+
+      updateLastSyncAt: () => set({ 
+        lastSyncAt: new Date().toISOString() 
+      }),
     }),
     {
       name: 'webdav-storage',

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLLMConfigStore } from '../stores/llmConfigStore';
 import { useWebDAVStore } from '../stores/webdavStore';
 import { LLMService } from '../services/llm/LLMService';
+import { WebDAVService } from '../services/webdav/WebDAVService';
 import { LLMConfig } from '../types';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -16,6 +17,7 @@ import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
+import { WebDAVSettings } from '../components/webdav/WebDAVSettings';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState<'llm' | 'webdav'>('llm');
@@ -381,45 +383,7 @@ function Settings() {
       )}
 
       {activeTab === 'webdav' && (
-        <Card className="p-6">
-          <h3 className="text-xl font-serif font-medium text-ink mb-4">
-            WebDAV 同步配置
-          </h3>
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-2 block">服务器地址</Label>
-              <Input
-                type="url"
-                value={webdavForm.url}
-                onChange={(e) => setWebdavForm({ ...webdavForm, url: e.target.value })}
-                placeholder="https://dav.example.com"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2 block">用户名</Label>
-                <Input
-                  type="text"
-                  value={webdavForm.username}
-                  onChange={(e) => setWebdavForm({ ...webdavForm, username: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label className="mb-2 block">密码</Label>
-                <Input
-                  type="password"
-                  value={webdavForm.password}
-                  onChange={(e) => setWebdavForm({ ...webdavForm, password: e.target.value })}
-                />
-              </div>
-            </div>
-            
-            <Button onClick={handleSaveWebDAV}>
-              保存配置
-            </Button>
-          </div>
-        </Card>
+        <WebDAVSettings />
       )}
     </div>
   );
