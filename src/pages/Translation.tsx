@@ -247,7 +247,7 @@ function Translation() {
             <div className="px-6 py-4 bg-surface-1 border-b border-border">
               <Label>译文</Label>
             </div>
-            <div className="flex-1 min-h-[400px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto whitespace-pre-wrap">
+            <div className="flex-1 min-h-[400px] max-h-[400px] px-6 py-4 text-[0.95rem] leading-relaxed text-muted overflow-y-auto whitespace-pre-wrap">
               {displayResult || '翻译结果将显示在这里...'}
             </div>
           </div>
