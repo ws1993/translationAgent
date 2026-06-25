@@ -228,6 +228,22 @@ export function WebDAVSettings() {
           <h3 className="text-xl font-serif font-medium text-ink mb-4">
             WebDAV 服务器配置
           </h3>
+
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-800">
+                <p className="font-medium mb-1">浏览器 CORS 限制说明</p>
+                <p className="mb-2">由于浏览器安全策略，WebDAV 可能无法直接访问。解决方案：</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>安装浏览器 CORS 插件（如 CORS Unblock、Allow CORS）</li>
+                  <li>使用桌面版应用（Electron 打包后无此限制）</li>
+                </ul>
+                <p className="mt-2 text-xs">坚果云 WebDAV 地址格式：<code className="bg-amber-100 px-1 rounded">https://dav.jianguoyun.com/dav/</code></p>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <Label className="mb-2 block">服务器地址 *</Label>

@@ -27,6 +27,9 @@ export class WebDAVService {
     this.client = createClient(config.url, {
       username: config.username,
       password: config.password,
+      headers: {
+        'User-Agent': 'TranslationAgent/1.0',
+      },
     });
   }
 
@@ -45,6 +48,16 @@ export class WebDAVService {
     try {
       const client = this.ensureClient();
       
+      // 先简单测试根目录访问
+      const testResult = await client.getDirectoryContents('/').catch(() => null);
+      
+      if (testResult === null) {
+        return { 
+          success: false, 
+          message: '无法访问 WebDAV 服务器，请检查：\n1. URL 格式是否正确（坚果云：https://dav.jianguoyun.com/dav/）\n2. 用户名和密码是否正确\n3. 浏览器 CORS 限制（可能需要使用浏览器插件或桌面应用）' 
+        };
+      }
+
       // 测试目录是否存在，不存在则创建
       const dirExists = await client.exists(this.basePath);
       if (!dirExists) {
@@ -71,9 +84,24 @@ export class WebDAVService {
       }
     } catch (error: any) {
       console.error('WebDAV connection test failed:', error);
+      
+      let errorMessage = '连接失败';
+      
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = '网络错误：无法连接到 WebDAV 服务器。\n\n可能原因：\n1. CORS 跨域限制（浏览器安全策略）\n2. URL 地址错误\n3. 网络连接问题\n\n建议：\n- 安装浏览器 CORS 插件（如 CORS Unblock）\n- 或使用桌面版应用（Electron 打包后无此限制）';
+      } else if (error.status === 401) {
+        errorMessage = '认证失败：用户名或密码错误';
+      } else if (error.status === 403) {
+        errorMessage = '权限不足：无访问权限';
+      } else if (error.status === 404) {
+        errorMessage = 'WebDAV 服务地址不存在';
+      } else {
+        errorMessage = `连接失败: ${error.message || '未知错误'}`;
+      }
+      
       return { 
         success: false, 
-        message: `连接失败: ${error.message || '未知错误'}` 
+        message: errorMessage
       };
     }
   }

@@ -176,9 +176,10 @@ function Settings() {
         <h2 className="text-3xl font-serif font-semibold text-ink mb-2">
           设置
         </h2>
-        <p className="text-muted">配置大模型和同步服务</p>
+        <p className="text-muted">配置大模型</p>
       </div>
 
+      {/* 暂时隐藏 WebDAV 功能（浏览器 CORS 限制，不适合普通用户）
       <div className="flex gap-4 border-b border-border">
         <button
           onClick={() => setActiveTab('llm')}
@@ -201,8 +202,10 @@ function Settings() {
           WebDAV 同步
         </button>
       </div>
+      */}
 
-      {activeTab === 'llm' && (
+      {/* WebDAV 功能暂时隐藏 */}
+      {(activeTab === 'llm' || true) && (
         <div className="space-y-6">
           <Card className="p-6">
             <h3 className="text-xl font-serif font-medium text-ink mb-4">
