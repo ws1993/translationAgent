@@ -208,11 +208,12 @@ ${sourceText}
 ${sourceText}
 
 要求：
-1. 识别文本中的专业术语、固定表达、技术名词
-2. 给出准确的${targetLanguageName}对应翻译
-3. 优先考虑该领域的标准译法和行业惯例
-4. 每个术语提供使用场景说明（可选）
-5. 如有特殊注意事项，请在 notes 中说明
+1. 【必须】识别文本中的所有专业术语、固定表达、技术名词
+2. 【必须】给出准确的${targetLanguageName}对应翻译
+3. 【必须】即使只有少量术语也要列出，不要返回空数组
+4. 优先考虑该领域的标准译法和行业惯例
+5. 每个术语提供使用场景说明（可选）
+6. 如有特殊注意事项，请在 notes 中说明
 
 请以 JSON 数组格式输出，每项包含：
 - source: 源语言术语
@@ -237,6 +238,9 @@ ${sourceText}
 ]
 \`\`\`
 
+【重要】如果文本中确实没有专业术语，至少返回文本中的关键名词或概念。
+【重要】不要返回空数组 []，这会导致翻译质量下降。
+
 请直接输出JSON数组，不要添加其他说明：`;
 
     const messages: LLMMessage[] = [
@@ -244,41 +248,60 @@ ${sourceText}
       { role: 'user', content: userPrompt },
     ];
 
-    const response = await this.llmService.sendMessage(messages);
+    const allResults: TerminologyItem[][] = [];
     
-    try {
-      console.log('[DomainAdaptive] Raw terminology response:', response.content.substring(0, 500));
-      
-      const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
-                       response.content.match(/\[[\s\S]*\]/);
-      
-      if (!jsonMatch) {
-        console.warn('[DomainAdaptive] No JSON found in response, returning empty terminology');
-        return [];
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await this.llmService.sendMessage(messages, { seed: 42 + attempt });
+        
+        console.log(`[DomainAdaptive] Attempt ${attempt + 1} - Raw terminology response (first 500 chars):`, response.content.substring(0, 500));
+        
+        const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                         response.content.match(/\[[\s\S]*\]/);
+        
+        if (!jsonMatch) {
+          console.warn(`[DomainAdaptive] Attempt ${attempt + 1} - No JSON found in response`);
+          continue;
+        }
+        
+        const jsonStr = (jsonMatch[1] || jsonMatch[0]).trim();
+        
+        if (!jsonStr) {
+          console.warn(`[DomainAdaptive] Attempt ${attempt + 1} - Empty JSON string`);
+          continue;
+        }
+        
+        const terminology = JSON.parse(jsonStr);
+        
+        if (Array.isArray(terminology)) {
+          console.log(`[DomainAdaptive] Attempt ${attempt + 1} - Successfully parsed ${terminology.length} terms`);
+          allResults.push(terminology);
+        } else {
+          console.warn(`[DomainAdaptive] Attempt ${attempt + 1} - Parsed result is not an array:`, typeof terminology);
+        }
+      } catch (error) {
+        console.error(`[DomainAdaptive] Attempt ${attempt + 1} - Failed to parse terminology:`, error);
       }
-      
-      const jsonStr = (jsonMatch[1] || jsonMatch[0]).trim();
-      
-      if (!jsonStr) {
-        console.warn('[DomainAdaptive] Empty JSON string, returning empty terminology');
-        return [];
-      }
-      
-      const terminology = JSON.parse(jsonStr);
-      
-      if (Array.isArray(terminology)) {
-        console.log('[DomainAdaptive] Successfully parsed', terminology.length, 'terms');
-        return terminology;
-      }
-      
-      console.warn('[DomainAdaptive] Parsed result is not an array:', typeof terminology);
-      return [];
-    } catch (error) {
-      console.error('[DomainAdaptive] Failed to parse terminology:', error);
-      console.error('[DomainAdaptive] Response content length:', response.content.length);
-      console.error('[DomainAdaptive] Response preview:', response.content.substring(0, 200));
+    }
+
+    if (allResults.length === 0) {
+      console.warn('[DomainAdaptive] All attempts failed, returning empty terminology');
       return [];
     }
+
+    const termMap = new Map<string, TerminologyItem>();
+    allResults.forEach(result => {
+      result.forEach(term => {
+        if (!termMap.has(term.source)) {
+          termMap.set(term.source, term);
+        }
+      });
+    });
+
+    const mergedTerms = Array.from(termMap.values());
+    console.log(`[DomainAdaptive] Final merged terminology: ${mergedTerms.length} unique terms from ${allResults.length} successful attempts`);
+    
+    return mergedTerms;
   }
 
   private buildDomainPrompt(

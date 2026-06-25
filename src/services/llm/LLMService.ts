@@ -19,12 +19,12 @@ export class LLMService {
     this.config = config;
   }
 
-  async sendMessage(messages: LLMMessage[]): Promise<LLMResponse> {
+  async sendMessage(messages: LLMMessage[], options?: { seed?: number }): Promise<LLMResponse> {
     try {
       if (this.config.provider === 'openai' || this.config.provider === 'custom') {
-        return await this.sendOpenAIMessage(messages);
+        return await this.sendOpenAIMessage(messages, options);
       } else if (this.config.provider === 'anthropic') {
-        return await this.sendAnthropicMessage(messages);
+        return await this.sendAnthropicMessage(messages, options);
       }
       throw new Error('Unsupported provider');
     } catch (error) {
@@ -47,18 +47,24 @@ export class LLMService {
     }
   }
 
-  private async sendOpenAIMessage(messages: LLMMessage[]): Promise<LLMResponse> {
+  private async sendOpenAIMessage(messages: LLMMessage[], options?: { seed?: number }): Promise<LLMResponse> {
     const baseUrl = this.config.baseUrl || 'https://api.openai.com/v1';
+    
+    const requestBody: any = {
+      model: this.config.model,
+      messages,
+      temperature: this.config.temperature ?? 0.1,
+      top_p: this.config.topP ?? 1,
+      max_tokens: this.config.maxTokens || 2000,
+    };
+
+    if (options?.seed !== undefined) {
+      requestBody.seed = options.seed;
+    }
     
     const response = await axios.post(
       `${baseUrl}/chat/completions`,
-      {
-        model: this.config.model,
-        messages,
-        temperature: this.config.temperature ?? 0,
-        top_p: this.config.topP ?? 1,
-        max_tokens: this.config.maxTokens || 2000,
-      },
+      requestBody,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +78,7 @@ export class LLMService {
     };
   }
 
-  private async sendAnthropicMessage(messages: LLMMessage[]): Promise<LLMResponse> {
+  private async sendAnthropicMessage(messages: LLMMessage[], options?: { seed?: number }): Promise<LLMResponse> {
     const baseUrl = this.config.baseUrl || 'https://api.anthropic.com/v1';
     
     const systemMessage = messages.find(m => m.role === 'system');
@@ -88,7 +94,7 @@ export class LLMService {
           role: m.role,
           content: m.content,
         })),
-        temperature: this.config.temperature ?? 0,
+        temperature: this.config.temperature ?? 0.1,
         top_p: this.config.topP ?? 1,
       },
       {

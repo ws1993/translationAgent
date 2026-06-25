@@ -312,7 +312,11 @@ export function DomainAdaptiveTranslationModal({
               {renderThinkingHeader('direct')}
               
               {progress.directTranslation ? (
-                <div className="p-5 bg-[#FBF7EF] rounded-lg border border-[#E2D9C8] leading-relaxed">
+                <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 leading-relaxed">
+                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-blue-200">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-bold text-blue-700">领域增强翻译完成</span>
+                  </div>
                   <div className="prose prose-sm max-w-none text-[#1F2421] whitespace-pre-wrap font-normal">
                     {progress.directTranslation}
                   </div>
@@ -371,7 +375,11 @@ export function DomainAdaptiveTranslationModal({
               {renderThinkingHeader('final')}
               
               {progress.finalTranslation ? (
-                <div className="p-5 bg-[#FBF7EF] rounded-lg border border-[#E2D9C8] leading-relaxed">
+                <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 leading-relaxed">
+                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-green-200">
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <span className="text-sm font-bold text-green-700">领域自适应翻译完成</span>
+                  </div>
                   <div className="prose prose-sm max-w-none text-[#1F2421] whitespace-pre-wrap font-normal">
                     {progress.finalTranslation}
                   </div>
