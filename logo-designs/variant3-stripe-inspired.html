@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Agent Logo - Stripe Inspired Design</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #635BFF 0%, #80E9FF 100%);
+            --secondary-gradient: linear-gradient(135deg, #80E9FF 0%, #635BFF 100%);
+            --accent-color: #635BFF;
+            --text-color: #0A2540;
+            --secondary-text: #425466;
+            --light-text: #6B7C93;
+            --background: #FFFFFF;
+            --surface: #F6F9FC;
+            --border: #E3E8EE;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .hero-section {
+            position: relative;
+            width: 100%;
+            padding: 6rem 2rem;
+            background: var(--primary-gradient);
+            border-radius: 24px;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        .logo-mark {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            background: white;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 60px rgba(99, 91, 255, 0.3);
+        }
+        
+        .logo-symbol {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            letter-spacing: -0.03em;
+        }
+        
+        .logo-text {
+            position: relative;
+            color: white;
+        }
+        
+        .logo-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .logo-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-section {
+            width: 100%;
+        }
+        
+        .features-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            border-color: transparent;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--surface);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .feature-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            letter-spacing: -0.01em;
+        }
+        
+        .feature-desc {
+            font-size: 1rem;
+            color: var(--secondary-text);
+            line-height: 1.6;
+        }
+        
+        .brand-section {
+            width: 100%;
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+        
+        .brand-colors {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .color-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .color-value {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            font-family: 'SF Mono', Monaco, 'Cascadia Mono', monospace;
+        }
+        
+        .design-principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            text-align: left;
+        }
+        
+        .principle-item {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .principle-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .principle-desc {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            line-height: 1.5;
+        }
+        
+        .metadata {
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            color: var(--light-text);
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 4rem 1.5rem;
+            }
+            
+            .logo-mark {
+                width: 140px;
+                height: 140px;
+                border-radius: 32px;
+            }
+            
+            .logo-symbol {
+                font-size: 3rem;
+            }
+            
+            .logo-title {
+                font-size: 2.5rem;
+            }
+            
+            .logo-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .brand-colors {
+                gap: 1.5rem;
+            }
+            
+            .color-circle {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="hero-section">
+            <div class="logo-mark">
+                <div class="logo-symbol">TA</div>
+            </div>
+            <div class="logo-text">
+                <h1 class="logo-title">Translation Agent</h1>
+                <p class="logo-subtitle">Professional translation powered by AI, designed for precision and clarity</p>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <h2 class="features-title">Built for Professional Translators</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-name">Lightning Fast</h3>
+                    <p class="feature-desc">Quick mode for immediate translations without compromising quality</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-name">Precision Accuracy</h3>
+                    <p class="feature-desc">Three-step professional process: Direct translation → Analysis → Refined output</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3 class="feature-name">Domain Expertise</h3>
+                    <p class="feature-desc">Specialized terminology management for technical, medical, and legal fields</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-name">Smart Sync</h3>
+                    <p class="feature-desc">WebDAV integration for seamless cross-device workflow</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="brand-section">
+            <h2 class="brand-title">Design System</h2>
+            
+            <div class="brand-colors">
+                <div class="color-item">
+                    <div class="color-circle" style="background: #635BFF;"></div>
+                    <span class="color-name">Primary</span>
+                    <span class="color-value">#635BFF</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle" style="background: #80E9FF;"></div>
+                    <span class="color-name">Secondary</span>
+                    <span class="color-value">#80E9FF</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle" style="background: #0A2540;"></div>
+                    <span class="color-name">Text</span>
+                    <span class="color-value">#0A2540</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle" style="background: #FFFFFF; border-color: #E3E8EE;"></div>
+                    <span class="color-name">Background</span>
+                    <span class="color-value">#FFFFFF</span>
+                </div>
+            </div>
+            
+            <div class="design-principles">
+                <div class="principle-item">
+                    <h3 class="principle-title">Clarity First</h3>
+                    <p class="principle-desc">Every element serves a purpose. No decorative clutter that distracts from the core function.</p>
+                </div>
+                <div class="principle-item">
+                    <h3 class="principle-title">Professional Trust</h3>
+                    <p class="principle-desc">Clean typography, consistent spacing, and a color palette that conveys reliability and expertise.</p>
+                </div>
+                <div class="principle-item">
+                    <h3 class="principle-title">Modern Elegance</h3>
+                    <p class="principle-desc">Subtle gradients, thoughtful animations, and attention to micro-interactions that delight users.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="metadata">
+            <p>Design Variant 3: Stripe Inspired Design</p>
+            <p>Inspired by Stripe's design philosophy of clarity, precision, and elegant simplicity</p>
+        </div>
+    </div>
+</body>
+</html>

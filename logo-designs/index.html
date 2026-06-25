@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Agent Logo Design Showcase</title>
+    <style>
+        :root {
+            --primary-color: #C8853F;
+            --secondary-color: #A86B2C;
+            --text-color: #1F2421;
+            --light-text: #8A8A80;
+            --background: #F6F1E8;
+            --surface: #FFFFFF;
+            --border: #E2D9C8;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--light-text);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+        
+        .design-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .design-card {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .design-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+        
+        .design-preview {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .design-info {
+            padding: 1.5rem;
+        }
+        
+        .design-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .design-desc {
+            font-size: 0.95rem;
+            color: var(--light-text);
+            margin-bottom: 1rem;
+        }
+        
+        .design-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--background);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            border: 1px solid var(--border);
+        }
+        
+        .preview-dark {
+            background: #0A0A0A;
+        }
+        
+        .preview-light {
+            background: #FFFFFF;
+        }
+        
+        .preview-gradient {
+            background: linear-gradient(135deg, #0F2B46 0%, #1A73E8 100%);
+        }
+        
+        .final-design {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 3rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .final-logo {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 2rem;
+        }
+        
+        .final-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .final-desc {
+            font-size: 1.1rem;
+            color: var(--light-text);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .color-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+        }
+        
+        .color-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .color-value {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        .usage-section {
+            margin-top: 3rem;
+        }
+        
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .usage-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+        
+        .usage-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .usage-desc {
+            font-size: 0.95rem;
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .design-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .color-palette {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Translation Agent Logo Design</h1>
+            <p class="subtitle">Three design directions created using Huashu Design Skill, with the final selection integrated into the application</p>
+        </header>
+        
+        <section class="section">
+            <h2 class="section-title">Design Exploration</h2>
+            
+            <div class="design-grid">
+                <div class="design-card">
+                    <div class="design-preview preview-dark">
+                        <svg width="120" height="120" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" fill="#0A0A0A" stroke="#666666" stroke-width="1"/>
+                            <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                            <text x="100" y="110" font-family="Inter, sans-serif" font-size="48" font-weight="300" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.1em">TA</text>
+                        </svg>
+                    </div>
+                    <div class="design-info">
+                        <h3 class="design-name">Gallery Dark Style</h3>
+                        <p class="design-desc">Minimalist design with thin borders, light font weights, and generous whitespace. Inspired by gallery and museum aesthetics.</p>
+                        <div class="design-tags">
+                            <span class="tag">Minimalist</span>
+                            <span class="tag">Professional</span>
+                            <span class="tag">Dark Theme</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="design-card">
+                    <div class="design-preview preview-gradient">
+                        <svg width="120" height="120" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="70" fill="#FFFFFF" filter="drop-shadow(0 8px 32px rgba(0,0,0,0.1))"/>
+                            <text x="100" y="115" font-family="Inter, sans-serif" font-size="56" font-weight="700" fill="#0F2B46" text-anchor="middle" letter-spacing="-0.02em">TA</text>
+                        </svg>
+                    </div>
+                    <div class="design-info">
+                        <h3 class="design-name">DeepL Reference Style</h3>
+                        <p class="design-desc">Clean, professional interface inspired by DeepL Translator. Features subtle gradients, card-based layout, and consistent spacing.</p>
+                        <div class="design-tags">
+                            <span class="tag">Professional</span>
+                            <span class="tag">Clean</span>
+                            <span class="tag">Gradient</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="design-card">
+                    <div class="design-preview preview-light">
+                        <svg width="120" height="120" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="stripeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#635BFF;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#80E9FF;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="100" cy="100" r="80" fill="url(#stripeGradient)"/>
+                            <circle cx="100" cy="100" r="60" fill="#FFFFFF" filter="drop-shadow(0 20px 60px rgba(99,91,255,0.3))"/>
+                            <text x="100" y="115" font-family="Inter, sans-serif" font-size="56" font-weight="800" fill="#635BFF" text-anchor="middle" letter-spacing="-0.03em">TA</text>
+                        </svg>
+                    </div>
+                    <div class="design-info">
+                        <h3 class="design-name">Stripe Inspired Design</h3>
+                        <p class="design-desc">Modern, elegant design inspired by Stripe's design philosophy. Features bold gradients, thoughtful animations, and premium feel.</p>
+                        <div class="design-tags">
+                            <span class="tag">Modern</span>
+                            <span class="tag">Elegant</span>
+                            <span class="tag">Premium</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">Final Selected Design</h2>
+            
+            <div class="final-design">
+                <div class="final-logo">
+                    <svg width="160" height="160" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="finalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#C8853F;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#A86B2C;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Background circle -->
+                        <circle cx="100" cy="100" r="90" fill="url(#finalGradient)" />
+                        
+                        <!-- Inner white circle -->
+                        <circle cx="100" cy="100" r="70" fill="#FFFFFF" />
+                        
+                        <!-- Translation symbol - stylized "T" and "A" -->
+                        <g transform="translate(100, 100)">
+                            <!-- "T" letter -->
+                            <path d="M-25,-30 L25,-30 M0,-30 L0,10" 
+                                  stroke="#1F2421" 
+                                  stroke-width="6" 
+                                  stroke-linecap="round"
+                                  fill="none"/>
+                            
+                            <!-- "A" letter -->
+                            <path d="M-15,10 L0,-20 L15,10 M-8,-5 L8,-5" 
+                                  stroke="#C8853F" 
+                                  stroke-width="5" 
+                                  stroke-linecap="round"
+                                  fill="none"/>
+                        </g>
+                        
+                        <!-- Decorative dots -->
+                        <circle cx="40" cy="40" r="3" fill="#C8853F" opacity="0.6"/>
+                        <circle cx="160" cy="40" r="3" fill="#C8853F" opacity="0.6"/>
+                        <circle cx="40" cy="160" r="3" fill="#C8853F" opacity="0.6"/>
+                        <circle cx="160" cy="160" r="3" fill="#C8853F" opacity="0.6"/>
+                    </svg>
+                </div>
+                
+                <h3 class="final-name">Translation Agent</h3>
+                <p class="final-desc">The final design integrates the existing color palette with a professional, memorable mark that works across all sizes and contexts.</p>
+                
+                <div class="color-palette">
+                    <div class="color-item">
+                        <div class="color-circle" style="background: #C8853F;"></div>
+                        <span class="color-name">Primary</span>
+                        <span class="color-value">#C8853F</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-circle" style="background: #A86B2C;"></div>
+                        <span class="color-name">Secondary</span>
+                        <span class="color-value">#A86B2C</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-circle" style="background: #1F2421;"></div>
+                        <span class="color-name">Text</span>
+                        <span class="color-value">#1F2421</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-circle" style="background: #FFFFFF; border-color: #E2D9C8;"></div>
+                        <span class="color-name">Background</span>
+                        <span class="color-value">#FFFFFF</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="usage-section">
+                <div class="usage-grid">
+                    <div class="usage-card">
+                        <h4 class="usage-title">Favicon</h4>
+                        <p class="usage-desc">The simplified favicon version uses the same design language at 32x32 pixels, ensuring instant recognition in browser tabs.</p>
+                    </div>
+                    
+                    <div class="usage-card">
+                        <h4 class="usage-title">Navigation Bar</h4>
+                        <p class="usage-desc">The logo appears in the navigation bar at 32x32 pixels, providing consistent brand presence throughout the application.</p>
+                    </div>
+                    
+                    <div class="usage-card">
+                        <h4 class="usage-title">Brand Colors</h4>
+                        <p class="usage-desc">The design uses the existing color palette: warm orange (#C8853F) as primary, with dark green (#1F2421) for contrast.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Translation Agent Logo Design | Created with Huashu Design Skill</p>
+            <p>Three design directions explored, final design integrated into application</p>
+        </footer>
+    </div>
+</body>
+</html>

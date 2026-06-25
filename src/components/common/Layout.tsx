@@ -16,9 +16,12 @@ function Layout() {
       <nav className="sticky top-0 z-50 bg-surface-1/90 backdrop-blur-xl border-b border-border">
         <div className="max-w-[1440px] mx-auto px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-serif font-semibold text-ink tracking-tight">
-              Translation <span className="text-accent italic">Agent</span>
-            </h1>
+            <div className="flex items-center gap-3">
+              <img src="/logo.svg" alt="Translation Agent Logo" className="w-8 h-8" />
+              <h1 className="text-2xl font-serif font-semibold text-ink tracking-tight">
+                Translation <span className="text-accent italic">Agent</span>
+              </h1>
+            </div>
             <div className="flex gap-8">
               {navItems.map((item) => (
                 <Link

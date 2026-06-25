@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C8853F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A86B2C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#logoGradient)" />
+  
+  <!-- Inner white circle -->
+  <circle cx="100" cy="100" r="70" fill="#FFFFFF" />
+  
+  <!-- Translation symbol - stylized "T" and "A" -->
+  <g transform="translate(100, 100)">
+    <!-- "T" letter -->
+    <path d="M-25,-30 L25,-30 M0,-30 L0,10" 
+          stroke="#1F2421" 
+          stroke-width="6" 
+          stroke-linecap="round"
+          fill="none"/>
+    
+    <!-- "A" letter -->
+    <path d="M-15,10 L0,-20 L15,10 M-8,-5 L8,-5" 
+          stroke="#C8853F" 
+          stroke-width="5" 
+          stroke-linecap="round"
+          fill="none"/>
+  </g>
+  
+  <!-- Decorative dots -->
+  <circle cx="40" cy="40" r="3" fill="#C8853F" opacity="0.6"/>
+  <circle cx="160" cy="40" r="3" fill="#C8853F" opacity="0.6"/>
+  <circle cx="40" cy="160" r="3" fill="#C8853F" opacity="0.6"/>
+  <circle cx="160" cy="160" r="3" fill="#C8853F" opacity="0.6"/>
+</svg>

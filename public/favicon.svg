@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C8853F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A86B2C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="url(#faviconGradient)" />
+  
+  <!-- Inner white circle -->
+  <circle cx="16" cy="16" r="11" fill="#FFFFFF" />
+  
+  <!-- Simplified "TA" letters -->
+  <g transform="translate(16, 16)">
+    <!-- "T" -->
+    <path d="M-6,-7 L6,-7 M0,-7 L0,3" 
+          stroke="#1F2421" 
+          stroke-width="2" 
+          stroke-linecap="round"
+          fill="none"/>
+    
+    <!-- "A" -->
+    <path d="M-4,3 L0,-5 L4,3 M-2,-1 L2,-1" 
+          stroke="#C8853F" 
+          stroke-width="1.5" 
+          stroke-linecap="round"
+          fill="none"/>
+  </g>
+</svg>

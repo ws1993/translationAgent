@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Agent Logo - Gallery Dark Style</title>
+    <style>
+        :root {
+            --bg-color: #0A0A0A;
+            --text-color: #FFFFFF;
+            --accent-color: #666666;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .logo-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-mark {
+            width: 120px;
+            height: 120px;
+            border: 1px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo-symbol {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+        
+        .logo-text {
+            text-align: center;
+        }
+        
+        .logo-title {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        
+        .variants-section {
+            margin-top: 4rem;
+            width: 100%;
+        }
+        
+        .variants-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .variant-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .variant-card:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .variant-logo {
+            width: 80px;
+            height: 80px;
+            border: 1px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .variant-text {
+            text-align: center;
+        }
+        
+        .variant-name {
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+        }
+        
+        .variant-desc {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+        
+        .specs-section {
+            margin-top: 4rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .specs-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .specs-list {
+            list-style: none;
+        }
+        
+        .specs-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+        
+        .specs-list li span {
+            color: var(--accent-color);
+        }
+        
+        .metadata {
+            margin-top: 4rem;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .logo-title {
+                font-size: 1.5rem;
+            }
+            
+            .logo-mark {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-symbol {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="logo-main">
+            <div class="logo-mark">
+                <div class="logo-symbol">TA</div>
+            </div>
+            <div class="logo-text">
+                <h1 class="logo-title">Translation Agent</h1>
+                <p class="logo-subtitle">Intelligent Translation Solution</p>
+            </div>
+        </div>
+        
+        <div class="variants-section">
+            <h2 class="variants-title">Logo Variants</h2>
+            <div class="variants-grid">
+                <div class="variant-card">
+                    <div class="variant-logo">
+                        <div class="logo-symbol">TA</div>
+                    </div>
+                    <div class="variant-text">
+                        <h3 class="variant-name">Primary Mark</h3>
+                        <p class="variant-desc">Square frame with initials</p>
+                    </div>
+                </div>
+                
+                <div class="variant-card">
+                    <div class="variant-logo">
+                        <div class="logo-symbol" style="font-size: 1.8rem;">翻译</div>
+                    </div>
+                    <div class="variant-text">
+                        <h3 class="variant-name">Chinese Version</h3>
+                        <p class="variant-desc">中文标识</p>
+                    </div>
+                </div>
+                
+                <div class="variant-card">
+                    <div class="variant-logo">
+                        <div class="logo-symbol" style="font-size: 1.2rem; letter-spacing: 0.05em;">Translation<br>Agent</div>
+                    </div>
+                    <div class="variant-text">
+                        <h3 class="variant-name">Stacked Version</h3>
+                        <p class="variant-desc">垂直排列</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="specs-section">
+            <h2 class="specs-title">Design Specifications</h2>
+            <ul class="specs-list">
+                <li><span>Style:</span> Gallery Dark (安静派)</li>
+                <li><span>Color Palette:</span> #0A0A0A (background), #FFFFFF (text), #666666 (accent)</li>
+                <li><span>Typography:</span> Inter (300/400 weight)</li>
+                <li><span>Layout:</span> Minimalist with generous whitespace</li>
+                <li><span>Elements:</span> Thin borders, uppercase subtitles, light font weights</li>
+                <li><span>Mood:</span> Professional, sophisticated, content-focused</li>
+            </ul>
+        </div>
+        
+        <div class="metadata">
+            <p>Design Variant 1: Gallery Dark Style</p>
+            <p>Generated using Huashu Design Skill - Random Wheel Selection</p>
+        </div>
+    </div>
+</body>
+</html>

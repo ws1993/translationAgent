@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Agent Logo - DeepL Reference Style</title>
+    <style>
+        :root {
+            --primary-color: #0F2B46;
+            --secondary-color: #1A73E8;
+            --accent-color: #4285F4;
+            --text-color: #FFFFFF;
+            --light-text: #BDC1C6;
+            --background: #FFFFFF;
+            --surface: #F8F9FA;
+            --border: #DADCE0;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: #202124;
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 16px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo-mark {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-symbol {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: -0.02em;
+        }
+        
+        .logo-text {
+            color: white;
+        }
+        
+        .logo-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .logo-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+        
+        .features-section {
+            width: 100%;
+        }
+        
+        .features-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #202124;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--secondary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .feature-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #202124;
+        }
+        
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #5F6368;
+            line-height: 1.5;
+        }
+        
+        .color-palette-section {
+            width: 100%;
+            margin-top: 2rem;
+        }
+        
+        .color-palette-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #202124;
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .color-swatch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .color-name {
+            font-size: 0.8rem;
+            color: #5F6368;
+        }
+        
+        .color-hex {
+            font-size: 0.75rem;
+            color: #9AA0A6;
+            font-family: 'SF Mono', Monaco, 'Cascadia Mono', monospace;
+        }
+        
+        .design-notes {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .design-notes-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #202124;
+        }
+        
+        .design-notes-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #5F6368;
+        }
+        
+        .metadata {
+            margin-top: 3rem;
+            font-size: 0.85rem;
+            color: #9AA0A6;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 1.5rem;
+            }
+            
+            .logo-mark {
+                width: 120px;
+                height: 120px;
+                border-radius: 24px;
+            }
+            
+            .logo-symbol {
+                font-size: 2.5rem;
+            }
+            
+            .logo-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="hero-section">
+            <div class="logo-mark">
+                <div class="logo-symbol">TA</div>
+            </div>
+            <div class="logo-text">
+                <h1 class="logo-title">Translation Agent</h1>
+                <p class="logo-subtitle">Professional Translation Solution</p>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <h2 class="features-title">Core Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-name">Fast Mode</h3>
+                    <p class="feature-desc">Single-call translation for quick results</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-name">Professional Mode</h3>
+                    <p class="feature-desc">Three-step process: Direct → Analysis → Refined</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3 class="feature-name">Domain Adaptation</h3>
+                    <p class="feature-desc">Specialized terminology for different fields</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-name">Smart Detection</h3>
+                    <p class="feature-desc">Automatic language recognition and target selection</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="color-palette-section">
+            <h3 class="color-palette-title">Color Palette</h3>
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #0F2B46;"></div>
+                    <span class="color-name">Primary</span>
+                    <span class="color-hex">#0F2B46</span>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #1A73E8;"></div>
+                    <span class="color-name">Secondary</span>
+                    <span class="color-hex">#1A73E8</span>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #4285F4;"></div>
+                    <span class="color-name">Accent</span>
+                    <span class="color-hex">#4285F4</span>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #FFFFFF;"></div>
+                    <span class="color-name">Background</span>
+                    <span class="color-hex">#FFFFFF</span>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #202124;"></div>
+                    <span class="color-name">Text</span>
+                    <span class="color-hex">#202124</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="design-notes">
+            <h3 class="design-notes-title">Design Notes</h3>
+            <div class="design-notes-content">
+                <p><strong>Reference:</strong> DeepL Translator - Known for its clean, professional interface with a focus on usability and clarity.</p>
+                <p><strong>Key Elements:</strong> Clean typography, subtle gradients, card-based layout, consistent spacing, and a professional color palette.</p>
+                <p><strong>Adaptation:</strong> Applied DeepL's design philosophy to Translation Agent, emphasizing clarity, professionalism, and user-friendly interface.</p>
+                <p><strong>Typography:</strong> Inter font family with appropriate weights for hierarchy and readability.</p>
+            </div>
+        </div>
+        
+        <div class="metadata">
+            <p>Design Variant 2: DeepL Reference Style</p>
+            <p>Inspired by award-winning translation tools and professional SaaS design</p>
+        </div>
+    </div>
+</body>
+</html>
