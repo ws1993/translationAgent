@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>翻译页优化原型 · 方案 A / B 决策稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   令牌层：参考方案的中性色阶 + 实测达标的强调色分工
+   括号为 WCAG 实测对比度（脚本计算，非目测）
+   ============================================================ */
+:root{
+  --paper:#F7F4EE;        /* 羊皮纸底（参考方案 Warm Canvas） */
+  --surface:#FCFAF6;      /* 卡片底 */
+  --surface-2:#FFFFFF;    /* 输入底 */
+  --border:#E5DDCF;
+  --border-strong:#D8CDB9;
+
+  --ink:#181614;          /* 16.44:1 on paper —— 正文/译文/标题（参考方案，采纳） */
+  --ink-2:#3E3A34;        /* 次级正文 */
+  --muted-strong:#6B655B; /* 5.26:1 on paper —— 辅助文字/标签（参考方案，采纳） */
+  --muted:#8E887D;        /* 仅装饰/禁用，禁用于需阅读文字 */
+
+  --copper:#C67A32;       /* 3.37:1 白字 → 仅作图形色：边框/图标/进度/选中底 */
+  --copper-ink:#8F5A20;   /* 5.75:1 —— 实底按钮与铜色文字用这个 */
+  --copper-deep:#7A4B18;
+  --tint:#F1E4D2;         /* ink 14.41:1 —— 浅底徽章/选中态 */
+  --success:#3F7D52;
+  --danger:#A8412F;
+
+  --sans:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --serif:'DM Serif Display',Georgia,serif;  /* 只给拉丁 */
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+
+  --r-s:8px; --r-m:12px; --r-l:16px;
+  --sh-1:0 1px 2px rgba(24,22,20,.05);
+  --sh-2:0 2px 8px rgba(24,22,20,.06),0 1px 2px rgba(24,22,20,.05);
+  --sh-3:0 12px 32px rgba(24,22,20,.12),0 2px 8px rgba(24,22,20,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; font-synthesis:none; /* 禁止中文合成斜体/加粗 */
+}
+button,input,textarea,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- 顶栏 ---------- */
+.appbar{position:sticky;top:0;z-index:40;background:rgba(247,244,238,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.appbar-in{max-width:1240px;margin:0 auto;padding:0 28px;height:60px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand-mark{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--copper);display:grid;place-items:center;font-family:var(--serif);font-size:12px;color:var(--copper-ink)}
+.brand-name{font-family:var(--serif);font-size:20px;letter-spacing:-.01em;line-height:1}
+.brand-name i{font-style:italic;color:var(--copper-ink)}
+.nav{display:flex;gap:2px;margin-left:8px}
+.nav a{position:relative;display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-s);text-decoration:none;font-size:14.5px;font-weight:500;color:var(--muted-strong);white-space:nowrap}
+.nav a:hover{color:var(--ink);background:rgba(198,122,50,.06)}
+.nav a[aria-current]{color:var(--ink);font-weight:600}
+.nav a[aria-current]::after{content:"";position:absolute;left:12px;right:12px;bottom:-11px;height:2px;border-radius:2px;background:var(--copper)}
+.nav a svg{opacity:.75}
+.nav a[aria-current] svg{opacity:1;color:var(--copper)}
+.gstate{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* ---------- 通用小组件 ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface);font-size:12.5px;color:var(--muted-strong);white-space:nowrap}
+.chip.solid{background:var(--tint);border-color:transparent;color:var(--ink);font-weight:500}
+.chip button{border:0;background:none;padding:0;cursor:pointer;color:var(--copper-ink);font-weight:600}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 0 3px rgba(63,125,82,.14)}
+.dot.warn{background:var(--copper);box-shadow:0 0 0 3px rgba(198,122,50,.16)}
+.kbd{font-family:var(--mono);font-size:11px;padding:1px 5px;border:1px solid var(--border-strong);border-bottom-width:2px;border-radius:5px;background:var(--surface-2);color:var(--muted-strong)}
+.chip .kbd{border-color:var(--border-strong);background:rgba(255,255,255,.6)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:var(--r-s);border:1px solid var(--border-strong);background:var(--surface-2);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:background .16s,transform .16s,box-shadow .16s,border-color .16s}
+.btn:hover{background:var(--surface);border-color:var(--copper);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--copper)}
+.btn.pri{height:44px;padding:0 22px;background:var(--copper-ink);border-color:var(--copper-ink);color:#fff;box-shadow:0 2px 10px rgba(143,90,32,.28)}
+.btn.pri:hover{background:var(--copper-deep);border-color:var(--copper-deep);box-shadow:0 6px 18px rgba(143,90,32,.32)}
+.btn.pri .kbd{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);color:#fff}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted-strong);font-weight:500}
+.btn.ghost:hover{background:var(--tint);border-color:transparent;color:var(--ink);transform:none}
+.btn.sm{height:32px;padding:0 11px;font-size:13px;font-weight:500}
+.btn.danger-t:hover{color:var(--danger);border-color:var(--danger)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ---------- 布局 ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:26px 28px 72px}
+.toolbar-sticky{position:sticky;top:60px;z-index:30;margin:-10px 0 22px;padding:10px 0;background:linear-gradient(var(--paper) 70%,rgba(247,244,238,0))}
+.seg-switch{display:inline-flex;gap:3px;padding:3px;background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:var(--sh-1)}
+.seg-switch button{height:28px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:var(--muted-strong);font-size:13px;font-weight:600;cursor:pointer}
+.seg-switch button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.seg-switch.alt button[aria-pressed=true]{background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 1px var(--copper)}
+
+h1.pg{margin:0;font-size:29px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+h1.pg .lat{font-family:var(--serif);font-weight:400;font-style:italic;color:var(--muted-strong);font-size:25px}
+.pg-sub{margin:6px 0 0;font-size:14.5px;color:var(--muted-strong);max-width:70ch}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px;flex-wrap:wrap}
+.pg-head .chips{display:flex;gap:8px;flex-wrap:wrap}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);box-shadow:var(--sh-2)}
+.card-pad{padding:20px 22px}
+.lbl{display:block;font-size:13px;font-weight:600;color:var(--muted-strong);letter-spacing:0;margin-bottom:9px}
+.note{display:none}
+body[data-notes=on] .note{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin-left:8px;padding:1px 8px 1px 6px;border-radius:999px;background:#FDF3E3;border:1px dashed var(--copper);color:var(--copper-ink);font-size:11.5px;font-weight:600;letter-spacing:.01em}
+.note::before{content:"↳";font-family:var(--mono)}
+
+/* ---------- 模式能力矩阵（参考方案 §3.1，采纳） ---------- */
+.matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mcard{position:relative;text-align:left;padding:16px 16px 14px;border-radius:var(--r-m);border:1px solid var(--border);background:var(--surface-2);cursor:pointer;transition:border-color .16s,box-shadow .16s,background .16s}
+.mcard:hover{border-color:var(--border-strong);box-shadow:var(--sh-2)}
+.mcard[aria-checked=true]{border-color:var(--copper);background:linear-gradient(180deg,#FDF8F0,var(--surface-2));box-shadow:0 0 0 1px var(--copper),var(--sh-2)}
+.mcard:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--copper)}
+.mcard-top{display:flex;align-items:center;gap:9px}
+.mcard-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--tint);color:var(--copper-ink);flex:none}
+.mcard[aria-checked=true] .mcard-ic{background:var(--copper);color:#fff}
+.mcard-name{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.mcard-time{margin-left:auto;white-space:nowrap;font-family:var(--mono);font-size:11.5px;color:var(--muted-strong);background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+.mcard-chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:11px 0 8px;font-size:11.5px;color:var(--muted-strong);font-family:var(--mono)}
+.mcard-chain span{padding:1px 6px;border-radius:5px;background:var(--paper);border:1px solid var(--border)}
+.mcard-desc{font-size:13px;color:var(--muted-strong);line-height:1.55}
+.mcard-flag{position:absolute;top:-9px;right:12px;height:20px;padding:0 8px;display:inline-flex;align-items:center;border-radius:999px;background:var(--copper-ink);color:#fff;font-size:11px;font-weight:600}
+.mcard-result{position:absolute;bottom:12px;right:14px;display:none;align-items:center;gap:5px;font-size:11px;color:var(--copper-ink);font-weight:600}
+body[data-state=done] .mcard[data-has-result] .mcard-result{display:inline-flex}
+.cfg-row{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px dashed var(--border)}
+.mini-seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:var(--r-s);overflow:hidden;background:var(--surface-2)}
+.mini-seg button{padding:7px 13px;border:0;background:transparent;font-size:13px;font-weight:600;color:var(--muted-strong);cursor:pointer}
+.mini-seg button+button{border-left:1px solid var(--border)}
+.mini-seg button[aria-pressed=true]{background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 1px var(--copper)}
+select.sel{height:36px;padding:0 30px 0 11px;border:1px solid var(--border-strong);border-radius:var(--r-s);background:var(--surface-2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B655B' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 9px center;appearance:none;font-size:13.5px}
+
+/* ---------- 工作台 ---------- */
+.wb{overflow:hidden;margin-top:16px}
+.wb-head{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.lang{display:inline-flex;align-items:center;gap:8px}
+.lang-btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border:1px solid var(--border-strong);background:var(--surface-2);border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+.lang-btn:hover{border-color:var(--copper)}
+.swap{width:30px;height:30px;border-radius:50%;border:1px solid var(--border-strong);background:var(--surface-2);display:grid;place-items:center;cursor:pointer;color:var(--copper-ink)}
+.swap:hover{background:var(--tint);border-color:var(--copper)}
+.wb-grid{display:grid;grid-template-columns:1fr 1fr;background:var(--border)}
+@media (max-width:900px){.wb-grid{grid-template-columns:1fr;background:var(--border)}}
+@media (max-width:860px){.matrix{grid-template-columns:1fr}.mcard-flag{position:static;display:inline-flex;margin-bottom:8px}}
+@media (max-width:1080px){.appbar-in{flex-wrap:wrap;height:auto;padding:10px 18px;gap:12px}.gstate{width:100%;margin-left:0;order:3}.wrap{padding:20px 18px 64px}.toolbar-sticky{top:auto;position:static}}
+@media (max-width:560px){.nav a{padding:8px 9px;font-size:13.5px}.nav a svg{display:none}.pg-head{align-items:flex-start}}
+.panel{background:var(--surface-2);display:flex;flex-direction:column;min-height:392px}
+.panel-head{display:flex;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.panel-title{font-size:13px;font-weight:700;letter-spacing:.02em}
+.panel-meta{font-family:var(--mono);font-size:11.5px;color:var(--muted-strong)}
+.panel-tools{margin-left:auto;display:flex;align-items:center;gap:6px}
+.tlink{border:0;background:none;font-size:12.5px;color:var(--muted-strong);cursor:pointer;padding:4px 7px;border-radius:6px;font-weight:500}
+.tlink:hover{background:var(--tint);color:var(--copper-ink)}
+textarea.ta{flex:1;width:100%;border:0;outline:none;resize:none;padding:16px;background:transparent;font-size:15px;line-height:1.8;color:var(--ink)}
+textarea.ta::placeholder{color:#9A948A;opacity:1}
+.out{flex:1;overflow:auto;padding:16px 18px;font-size:15.5px;line-height:1.9;color:var(--ink);letter-spacing:.005em}
+.out .pair{margin:0 0 16px;padding-bottom:14px;border-bottom:1px dashed var(--border)}
+.out .pair:last-child{border-bottom:0}
+.out .src{display:block;color:var(--muted-strong);font-size:13px;line-height:1.65;margin-bottom:5px}
+.out .tr{display:block}
+.prov{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--copper-ink);background:var(--tint);border-radius:6px;padding:2px 7px;font-weight:600}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:24px;color:var(--muted-strong)}
+.empty-ic{width:44px;height:44px;border-radius:12px;background:var(--paper);border:1px solid var(--border);display:grid;place-items:center;color:var(--copper)}
+.empty-t{font-size:14.5px;font-weight:600;color:var(--ink)}
+.empty-d{font-size:13px;max-width:34ch}
+.skel{height:11px;border-radius:6px;background:linear-gradient(90deg,var(--paper),var(--tint),var(--paper));background-size:200% 100%;animation:sh 1.4s linear infinite;margin-bottom:11px}
+@keyframes sh{to{background-position:-200% 0}}
+.panel-foot{display:flex;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--muted-strong)}
+
+/* ---------- 思维链轨道（替代全屏弹窗，参考方案 §3.3 采纳） ---------- */
+.pipe{margin-top:16px;padding:14px 18px 16px;display:none}
+body[data-state=working][data-mode=pro] .pipe,body[data-state=working][data-mode=domain] .pipe,
+body[data-state=done][data-mode=pro] .pipe,body[data-state=done][data-mode=domain] .pipe{display:block}
+.pipe-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.pipe-t{font-size:13px;font-weight:700}
+.bar{flex:1;height:5px;border-radius:999px;background:var(--border);overflow:hidden;max-width:260px}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--copper),var(--copper-ink));transition:width .5s cubic-bezier(.22,1,.36,1)}
+.nodes{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+.node{flex:1 1 150px;min-width:150px;text-align:left;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--r-s);padding:9px 11px;cursor:default;position:relative}
+.node.done{border-color:rgba(63,125,82,.4);background:#F6FAF6}
+.node.active{border-color:var(--copper);background:#FDF6EC;box-shadow:0 0 0 3px rgba(198,122,50,.11)}
+.node-btn{border:0;background:none;padding:0;text-align:left;cursor:pointer;width:100%}
+.node-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700}
+.node-i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:10px;flex:none;background:var(--paper);border:1px solid var(--border-strong);color:var(--muted-strong)}
+.node.done .node-i{background:var(--success);border-color:var(--success);color:#fff}
+.node.active .node-i{background:var(--copper);border-color:var(--copper);color:#fff;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 5px rgba(198,122,50,.18)}}
+.node-d{margin-top:4px;font-size:11.5px;color:var(--muted-strong);font-family:var(--mono);line-height:1.5}
+.node-more{margin-top:5px;font-size:11px;color:var(--copper-ink);font-weight:600}
+.drawer{margin-top:12px;border:1px dashed var(--border-strong);border-radius:var(--r-s);background:var(--surface);padding:14px 16px;font-size:13px;line-height:1.75;display:none}
+.drawer.on{display:block}
+.drawer h4{margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:none;color:var(--muted-strong);font-weight:700}
+.term{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;font-family:var(--mono);font-size:12.5px;margin:0;padding:0}
+.term b{font-weight:500;color:var(--ink)}
+.term i{font-style:normal;color:var(--copper-ink)}
+.term em{font-style:normal;color:var(--muted-strong);font-size:11px}
+mark.ins{background:rgba(63,125,82,.14);color:#2F6041;padding:0 2px;border-radius:3px}
+mark.del{background:rgba(168,65,47,.1);color:#8B3626;text-decoration:line-through;padding:0 2px;border-radius:3px}
+
+/* ---------- 动作栏 ---------- */
+.actions{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.spacer{flex:1}
+.menu-wrap{position:relative}
+.menu{position:absolute;right:0;bottom:44px;min-width:196px;padding:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);box-shadow:var(--sh-3);display:none;z-index:20}
+.menu.on{display:block}
+.menu button{display:block;width:100%;text-align:left;padding:9px 11px;border:0;border-radius:var(--r-s);background:none;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.menu button:hover{background:var(--tint)}
+.menu button.dg{color:var(--danger)}
+.menu button.dg:hover{background:rgba(168,65,47,.08)}
+.menu hr{border:0;border-top:1px solid var(--border);margin:5px 2px}
+.hint{font-size:12.5px;color:var(--muted-strong);display:flex;align-items:center;gap:6px}
+
+/* ---------- 方案 A：定向精修（同骨架，只修不达标项） ---------- */
+#A .a-card{margin-bottom:16px}
+#A .a-row{display:grid;grid-template-columns:126px 1fr;gap:18px;align-items:center}
+#A .a-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:var(--r-l);overflow:hidden;border:1px solid var(--border)}
+#A .a-cell{background:var(--surface-2);display:flex;flex-direction:column;min-height:340px}
+#A .out,#A textarea.ta{padding:18px}
+
+/* ---------- 决策面板 ---------- */
+.dj{margin-top:44px;padding-top:26px;border-top:2px solid var(--border-strong)}
+.dj h2{margin:0 0 4px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+.dj-lead{margin:0 0 20px;font-size:14px;color:var(--muted-strong);max-width:78ch}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);overflow:hidden}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface);font-size:12px;letter-spacing:.03em;color:var(--muted-strong);font-weight:700}
+tr:last-child td{border-bottom:0}
+td b{font-weight:700}
+td .tagv{display:inline-block;margin-top:5px;font-family:var(--mono);font-size:11.5px;color:var(--copper-ink)}
+.rec{color:var(--success);font-weight:700}
+.no{color:var(--danger);font-weight:700}
+footer.pg-foot{margin-top:34px;font-size:12.5px;color:var(--muted-strong);line-height:1.8}
+.toast{position:fixed;right:22px;bottom:22px;z-index:60;display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:var(--r-m);background:var(--ink);color:var(--paper);font-size:13.5px;box-shadow:var(--sh-3);opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+.toast .dot{background:var(--success)}
+section[data-pane]{display:none}
+section[data-pane].on{display:block}
+</style>
+</head>
+<body data-variant="B" data-state="idle" data-mode="domain" data-notes="off">
+
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="brand" href="#"><span class="brand-mark">T</span><span class="brand-name">Translation <i>Agent</i></span></a>
+    <nav class="nav" aria-label="主导航">
+      <a href="#" aria-current="page"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h9M9 4v4M11 8c0 4-3 8-6 9M8 12c1.5 2.5 4 4.5 6.5 5.5"/><path d="M14 20l4-9 4 9M15.5 17h5"/></svg>翻译</a>
+      <a href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>文件翻译</a>
+      <a href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 2.6 14H2.4a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4 7.6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9.6 5h.1A1.7 1.7 0 0 0 11 3.4V3.2a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.2a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg>设置</a>
+    </nav>
+    <div class="gstate">
+      <span class="chip" title="当前激活的大模型"><span class="dot"></span><b class="mono" style="font-weight:500">deepseek-chat</b><span style="color:var(--border-strong)">│</span><span>已就绪</span><button title="切换模型">切换</button></span>
+      <span class="chip" title="WebDAV 同步状态"><span class="dot warn"></span>云端 · 6 分钟前</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="toolbar-sticky">
+    <div class="seg-switch" role="group" aria-label="方案切换">
+      <button data-v="A" aria-pressed="false">方案 A · 定向精修</button>
+      <button data-v="B" aria-pressed="true">方案 B · 一体化工作台（推荐）</button>
+    </div>
+    <div class="seg-switch" style="margin-left:8px" role="group" aria-label="状态预览">
+      <button data-s="idle" aria-pressed="true">空态</button>
+      <button data-s="working" aria-pressed="false">翻译中</button>
+      <button data-s="done" aria-pressed="false">已完成</button>
+    </div>
+    <button class="btn sm" data-notes-toggle aria-pressed="false" style="margin-left:8px">显示改动标注</button>
+  </div>
+
+  <!-- ======================= 方案 B ======================= -->
+  <section data-pane="B" class="on">
+
+    <div class="pg-head">
+      <div>
+        <h1 class="pg">智能翻译 · <span class="lat">Zh ↔ En</span><span class="note">P0-2 中文去合成斜体，衬线只留给拉丁</span></h1>
+        <p class="pg-sub">直译 → 批评审校 → 意译定稿，每一步推理过程可见、可追溯，术语按领域锁定。</p>
+      </div>
+      <div class="chips">
+        <span class="chip solid"><span class="mono" style="font-weight:500">EN → 中文</span><button>改</button><span class="note">P1 方向从句子降级为芯片，且可手动覆盖</span></span>
+        <span class="chip">长文本 · 建议专业流程</span>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <span class="lbl">翻译模式<span class="note">P0-5 三模式差异必须自解释：链路 + 耗时 + 场景</span></span>
+      <div class="matrix" role="radiogroup" aria-label="翻译模式">
+        <button class="mcard" role="radio" aria-checked="false" data-mode="quick">
+          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span class="mcard-name">极速直译</span><span class="mcard-time">≈1–2s</span></span>
+          <span class="mcard-chain"><span>单次推理</span></span>
+          <p class="mcard-desc">日常沟通、短句即时翻译。响应优先，不做二次审校。</p>
+        </button>
+        <button class="mcard" role="radio" aria-checked="false" data-mode="pro" data-has-result="1">
+          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l2.5 5.2 5.5.8-4 3.9 1 5.6-5-2.8-5 2.8 1-5.6-4-3.9 5.5-.8z"/></svg></span><span class="mcard-name">专业三步</span><span class="mcard-time">≈5–8s</span></span>
+          <span class="mcard-chain"><span>直译</span><span>批评</span><span>意译</span></span>
+          <p class="mcard-desc">论文、商务邮件。自动纠语法硬伤与语境生硬，追求信达雅。</p>
+          <span class="mcard-result">● 已有结果</span>
+        </button>
+        <button class="mcard" role="radio" aria-checked="true" data-mode="domain">
+          <span class="mcard-flag">长文推荐</span>
+          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19V9l8-5 8 5v10"/><path d="M9 19v-6h6v6"/></svg></span><span class="mcard-name">领域自适应</span><span class="mcard-time">≈10–15s</span></span>
+          <span class="mcard-chain"><span>识别领域</span><span>锁术语</span><span>直译</span><span>审校</span><span>精修</span></span>
+          <p class="mcard-desc">医学、IT、法律、金融长文。先绑定行业专有名词再翻译，杜绝术语误译。</p>
+        </button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <span class="lbl">输出格式<span class="note">原页面该配置不可达（setter 从未调用）</span></span>
+          <div class="mini-seg" role="group" aria-label="输出格式">
+            <button aria-pressed="true">分段对照</button>
+            <button aria-pressed="false">纯译文</button>
+          </div>
+        </div>
+        <div>
+          <span class="lbl">领域约束<span class="note">P0-5 领域提示词补回主流程入口</span></span>
+          <select class="sel" aria-label="领域约束">
+            <option>自动识别（推荐）</option>
+            <option>技术 · 软件开发</option>
+            <option>生物 · 生物医药</option>
+            <option>法律 · 合同法</option>
+          </select>
+        </div>
+        <div class="hint" style="padding-bottom:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>短于 30 字（中）/ 50 词（英）时会自动走极速直译，并在结果处明示</div>
+      </div>
+    </div>
+
+    <div class="card wb">
+      <div class="wb-head">
+        <span class="lang">
+          <button class="lang-btn"><b>English</b><span style="color:var(--muted-strong);font-weight:400">自动识别</span></button>
+          <button class="swap" aria-label="互换语言方向"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 4v13M7 4L4 7M7 4l3 3M17 20V7M17 20l3-3M17 20l-3-3"/></svg></button>
+          <button class="lang-btn"><b>中文（简体）</b></button>
+        </span>
+        <span class="chip" style="margin-left:4px"><span class="mono" id="tk">≈0 tokens</span></span>
+        <div class="panel-tools">
+          <div class="mini-seg" role="group" aria-label="结果视图">
+            <button aria-pressed="false">左右对照</button>
+            <button aria-pressed="true">分段对照</button>
+            <button aria-pressed="false">Diff 审校</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">原文</span>
+            <span class="panel-meta" id="cc">0 字符 · 1 段</span>
+            <span class="panel-tools">
+              <button class="tlink" data-sample>导入示例</button>
+              <button class="tlink" data-clear>清空</button>
+            </span>
+          </div>
+          <textarea class="ta" id="src" spellcheck="false" placeholder="在此粘贴或输入需要翻译的文本…"></textarea>
+          <div class="panel-foot"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> 开始翻译<span class="spacer"></span><span>粘贴即自动识别语言</span></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">译文</span>
+            <span class="prov" id="prov" style="display:none">领域自适应 · 5 阶段 · 12:03<span class="note">P0-4 结果必须标注归属模式，切换不再"凭空换脸"</span></span>
+            <span class="panel-tools">
+              <button class="tlink" data-copy>复制</button>
+              <button class="tlink">下载 .md</button>
+            </span>
+          </div>
+
+          <div class="empty" data-st="idle">
+            <span class="empty-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h9M9 4v4M11 8c0 4-3 8-6 9"/><path d="M14 20l4-9 4 9M15.5 17h5"/></svg></span>
+            <span class="empty-t">译文会显示在这里</span>
+            <span class="empty-d">先在左侧输入文本；空白占位不再与正文同色<span class="note">P1-2 空态 / 进行中 / 完成 三态互斥</span></span>
+          </div>
+
+          <div class="out" data-st="working" style="display:none">
+            <div class="skel" style="width:92%"></div><div class="skel" style="width:78%"></div><div class="skel" style="width:88%"></div><div class="skel" style="width:54%"></div>
+          </div>
+
+          <div class="out" data-st="done" style="display:none">
+            <div class="pair"><span class="src">The architecture of agentic workflows leverages iterative refinement loops to achieve superior translation accuracy.</span><span class="tr">智能体工作流（Agentic Workflows）的架构优势，在于借助迭代式精修循环（Iterative Refinement Loops）来实现更高的翻译精度。</span></div>
+            <div class="pair"><span class="src">Rather than a single-pass output, the model critiques its own literal rendering before producing an idiomatic final version.</span><span class="tr">它并非一次成型，而是先对自身直译结果展开自我批评，再输出符合中文表达习惯的定稿。</span></div>
+            <div class="pair"><span class="src">Domain-locked terminology prevents subtle mistranslation in specialized texts.</span><span class="tr">经领域锁定的术语表，可防止专业文本中出现不易察觉的误译。</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 思维链轨道：替代原全屏遮罩弹窗 -->
+      <div class="card pipe" style="border-radius:0;border:0;border-top:1px solid var(--border);box-shadow:none">
+        <div class="pipe-top">
+          <span class="pipe-t">推理链路<span class="note">参考方案 §3.3 采纳：非阻塞、可回看，取代全屏弹窗</span></span>
+          <span class="bar"><i id="bar" style="width:0%"></i></span>
+          <span class="panel-meta mono" id="pct">0%</span>
+          <span class="spacer"></span>
+          <button class="btn sm">查看完整报告</button>
+        </div>
+        <div class="nodes" id="nodes"></div>
+        <div class="drawer" id="drawer"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn pri" data-run>开始翻译 <span class="kbd">Ctrl</span><span class="kbd">↵</span></button>
+      <button class="btn" data-run-alt><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>复制译文</button>
+      <span class="hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>模式已锁定为「领域自适应」，翻译中不可切换<span class="note">P0-3 原实现 disabled 被静默丢弃</span></span>
+      <span class="spacer"></span>
+      <div class="menu-wrap">
+        <button class="btn ghost" data-menu>重置 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg><span class="note">P1-3 破坏性动作收进菜单 + 二次确认</span></button>
+        <div class="menu" id="menu">
+          <button>清空原文</button>
+          <button>重置当前模式结果</button>
+          <hr>
+          <button class="dg">重置所有模式…</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 方案 A ======================= -->
+  <section data-pane="A">
+    <div class="pg-head">
+      <div>
+        <h1 class="pg">智能翻译 中英文互译<span class="note">A 方案：仅修不达标项，骨架不动</span></h1>
+        <p class="pg-sub">直译、问题分析、意译三阶段，过程可见、术语一致。</p>
+      </div>
+    </div>
+
+    <div class="card card-pad a-card">
+      <div class="a-row">
+        <span class="lbl" style="margin:0">翻译模式</span>
+        <div>
+          <div class="mini-seg" role="group" aria-label="翻译模式">
+            <button aria-pressed="false">快速模式</button>
+            <button aria-pressed="false">专业模式</button>
+            <button aria-pressed="true">领域自适应</button>
+          </div>
+          <div class="hint" style="margin-top:9px">识别领域 → 锁术语 → 直译 → 审校 → 精修 · ≈10–15s · 适合医学/IT/法律长文<span class="note">最小成本补上模式解释，不引入卡片矩阵</span></div>
+        </div>
+      </div>
+      <div class="a-row" style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--border)">
+        <span class="lbl" style="margin:0">输出格式</span>
+        <div class="mini-seg" role="group"><button aria-pressed="true">对照</button><button aria-pressed="false">纯译文</button></div>
+      </div>
+      <div class="a-row" style="margin-top:16px">
+        <span class="lbl" style="margin:0">领域约束</span>
+        <select class="sel"><option>自动识别（推荐）</option><option>技术 · 软件开发</option></select>
+      </div>
+    </div>
+
+    <div class="a-grid" style="margin-bottom:16px">
+      <div class="a-cell">
+        <div class="panel-head"><span class="panel-title">原文</span><span class="panel-meta num">0 字符</span></div>
+        <textarea class="ta" placeholder="在此输入需要翻译的文本…" spellcheck="false"></textarea>
+      </div>
+      <div class="a-cell">
+        <div class="panel-head"><span class="panel-title">译文</span><span class="panel-tools"><button class="tlink">复制</button></span></div>
+        <div class="empty"><span class="empty-t">译文会显示在这里</span><span class="empty-d">输入后按 Ctrl+Enter 开始<span class="note">译文改 text-ink 16.44:1；占位符与正文分层</span></span></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn pri">开始翻译 <span class="kbd">Ctrl</span><span class="kbd">↵</span></button>
+      <button class="btn">段落对照</button>
+      <button class="btn">查看翻译报告</button>
+      <span class="spacer"></span>
+      <button class="btn ghost">重置</button>
+      <button class="btn ghost danger-t">重置所有模式</button>
+    </div>
+  </section>
+
+  <!-- ======================= 决策依据 ======================= -->
+  <div class="dj">
+    <h2>需要拍板的 6 个决策点</h2>
+    <p class="dj-lead">下表左列是把 <code>docs/优化方案参考.md</code> 与 <code>docs/UIUX-Translation-Page-Review.md</code> 合并去重后的结论：参考方案在<b>产品表达层</b>更强，审查方案在<b>可用性硬指标</b>（对比度、语义、失效交互、不可达配置）上更全。凡两者冲突处，均已实测或对照 <code>docs/demand.md</code>。</p>
+    <table>
+      <thead><tr><th style="width:22%">决策点</th><th style="width:26%">选项</th><th style="width:38%">证据与取舍</th><th style="width:14%">建议</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><b>1. 视觉方案</b></td>
+        <td>A 定向精修（1 天）｜B 一体化工作台（3–4 天）</td>
+        <td>两者共用同一套令牌，A 的改动是 B 的子集，先 A 后 B 不返工。</td>
+        <td class="rec">B（若排期紧，先落 A）</td>
+      </tr>
+      <tr>
+        <td><b>2. 过程呈现</b></td>
+        <td>保留全屏弹窗｜内嵌思维链轨道（参考方案 §3.3）</td>
+        <td>弹窗遮住原文、打断"边看原文边看推导"；轨道还能承接 P1-1"页面零进度反馈"。但 <code>ProfessionalTranslationModal</code> / <code>DomainAdaptiveTranslationModal</code> 已有完整阶段内容，重写成本高。</td>
+        <td class="rec">内嵌轨道为主，弹窗降级为"放大查看"（过渡期共存）</td>
+      </tr>
+      <tr>
+        <td><b>3. 视图模型</b></td>
+        <td>对照 = 左右并排（参考方案）｜对照 = 每段上原文下译文（<code>demand.md</code> 原话）</td>
+        <td>原始需求明确写"每一段上面是原文、下面是译文"。左右并排是我上一轮的推断，与需求不符。<b>Diff 审校</b>（直译 vs 定稿高亮）是参考方案的增量，数据已具备（<code>result.directTranslation</code> + <code>finalTranslation</code>）。</td>
+        <td class="rec">分段对照为默认，Diff 作第三视图；不做左右并排</td>
+      </tr>
+      <tr>
+        <td><b>4. 强调色</b></td>
+        <td>沿用 <code>#C8853F</code>｜参考方案铜色 <code>#C67A32</code>｜分工制（铜=图形，<code>#8F5A20</code>=文字/实底）</td>
+        <td>实测白字压 <code>#C67A32</code> 仅 <b>3.37:1</b>，压 <code>#C8853F</code> 为 <b>3.05:1</b>，两者都不达 AA；<code>#8F5A20</code> 为 <b>5.75:1</b>。参考方案只谈氛围未验对比度，此项必须改。</td>
+        <td class="rec">分工制（铜色保留用于进度/图标/选中环）</td>
+      </tr>
+      <tr>
+        <td><b>5. 中性色阶</b></td>
+        <td>现状 <code>#1F2421/#8A8A80</code>｜参考 <code>#181614/#6B655B</code></td>
+        <td>参考方案的中性色阶<b>优于</b>现状与我的上一版：正文 16.44:1、次级 5.26:1，全部达标且更耐读。<code>#8A8A80</code> 的 3.26:1 是主要缺陷来源。</td>
+        <td class="rec no">采纳参考方案（唯一需回滚现状 token 的一项）</td>
+      </tr>
+      <tr>
+        <td><b>6. 中文标题字面</b></td>
+        <td>全局 serif（现状）｜中文 sans 真字重 + 拉丁保留 serif（本原型）</td>
+        <td><code>index.html</code> 只加载拉丁切片，中文衬线会回落 SimSun 并被<b>合成斜体/合成加粗</b>。参考方案同样写"品牌标题用 DM Serif Display"，但没区分中英文；用 <code>font-synthesis:none</code> 可根治。</td>
+        <td class="rec">中英分字面（两方案共同修正项）</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <footer class="pg-foot">
+      <b>本原型已实现的可交互验证：</b>方案 A/B 切换、空态/翻译中/完成三态、模式矩阵联动链路节点、轨道节点点击回看中间产物（术语表 / 批评清单 / 审校 Diff）、字数统计、复制反馈、<code>Ctrl+Enter</code>、重置菜单、改动标注开关（右下角"显示改动标注"，逐条对应审查文档的 P0/P1 编号）。<br>
+      <b>未包含（需后续确认）：</b>朗读/TTS、模型预设一键填入（参考方案阶段三）、文件翻译页章节树、领域管理页重建 —— <code>demand.md</code> 要求有该页，但当前 <code>src/pages/DomainManagement.tsx</code> 已被删除、导航亦已注释，属功能缺失而非样式问题，建议单列一条产品决策。<br>
+      <b>对照实测口径：</b>WCAG 2.1 相对亮度公式；禁用态按 50% 不透明度与纸底混色取样；基线提交 <code>690c04e</code>。
+    </footer>
+  </div>
+</main>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toast-t">已复制</span></div>
+
+<script>
+/* ---------- 状态 ---------- */
+const body=document.body;
+const SAMPLE="The architecture of agentic workflows leverages iterative refinement loops to achieve superior translation accuracy. Rather than a single-pass output, the model critiques its own literal rendering before producing an idiomatic final version.\n\nDomain-locked terminology prevents subtle mistranslation in specialized texts.";
+const MODES={
+  quick:{label:'极速直译',steps:[{t:'单次推理',d:'生成直译结果'}]},
+  pro:{label:'专业三步',steps:[
+    {t:'直译打底',d:'保留原文结构，生成直译草稿',detail:'智能体工作流的架构利用迭代精修循环来实现卓越的翻译准确度。模型并非单次输出，而是在生成惯意定稿前批评自身的字面渲染。'},
+    {t:'批评审校',d:'定位 3 处硬伤',detail:'① "利用…实现…" 为翻译腔，中文宜换主语；② "卓越的翻译准确度" 搭配生硬，应为"更高精度"；③ "字面渲染" 术语误用，应为"直译结果"。'},
+    {t:'意译定稿',d:'按中文语序重写',detail:'智能体工作流的架构优势，在于借助迭代式精修循环来实现更高的翻译精度；它并非一次成型，而是先对自身直译结果展开自我批评，再输出定稿。'}]},
+  domain:{label:'领域自适应',steps:[
+    {t:'识别领域',d:'计算机科学 · 置信度 0.91',detail:'主领域：计算机科学 / 子领域：智能体系统。依据：agentic workflows、iterative refinement 为 LLM Agent 领域固定表述。'},
+    {t:'锁定术语',d:'6 项核心术语',term:[['Agentic Workflows','智能体工作流','保留英文括注'],['Iterative Refinement','迭代式精修','勿译"细化"'],['Translation Accuracy','翻译精度','非"准确度"'],['Literal Rendering','直译结果','非"字面渲染"'],['Idiomatic Version','惯用定稿',''],['Domain-Locked Terminology','领域锁定术语','']]},
+    {t:'直译打底',d:'生成直译草稿',detail:'智能体工作流的架构利用迭代精修循环来实现卓越的翻译准确度。'},
+    {t:'批评审校',d:'发现 3 处生硬直译',detail:'① 翻译腔连动结构；② "卓越" 过度修饰；③ "单次生成" 与 "single-pass" 语义错位。'},
+    {t:'意译定稿',d:'术语一致性校验通过',detail:'6/6 术语命中；输出定稿。'}]}
+};
+let mode='domain',state='idle',timer=null;
+
+/* ---------- 工具 ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function toast(t){$('#toast-t').textContent=t;$('#toast').classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>$('#toast').classList.remove('on'),1800)}
+function setState(s){state=s;body.dataset.state=s;$$('[data-s]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===s)));render()}
+function setMode(m){mode=m;body.dataset.mode=m;$$('.mcard').forEach(c=>c.setAttribute('aria-checked',String(c.dataset.mode===m)));renderNodes();if(state==='working')toast('翻译进行中，模式已锁定')}
+
+/* ---------- 轨道 ---------- */
+function renderNodes(){
+  const M=MODES[mode],host=$('#nodes');if(!host)return;
+  const p=+$('#pct').textContent.replace('%','')||0;
+  const per=100/M.steps.length;
+  host.innerHTML=M.steps.map((s,i)=>{
+    const done=state==='done'||p>=(i+1)*per, active=state==='working'&&p>=i*per&&p<(i+1)*per;
+    const cls=done?'done':active?'active':'';
+    const ic=done?'✓':active?'●':(i+1);
+    return `<div class="node ${cls}"><button class="node-btn" data-node="${i}" ${done||active?'':'disabled'}>
+      <div class="node-h"><span class="node-i">${ic}</span>${i+1}. ${s.t}</div>
+      <div class="node-d">${s.d}</div>${s.term||s.detail?'<div class="node-more">查看中间产物 ›</div>':''}
+    </button></div>`}).join('');
+  host.querySelectorAll('.node-btn').forEach(b=>b.onclick=()=>openDrawer(+b.dataset.node));
+}
+function openDrawer(i){
+  const s=MODES[mode].steps[i],d=$('#drawer');if(!d)return;
+  let inner=`<h4>${i+1} · ${s.t} — 中间产物</h4>`;
+  if(s.term) inner+=`<div class="term">${s.term.map(t=>`<b>${t[0]}</b><i>${t[1]}</i><em>${t[2]||'—'}</em>`).join('')}</div>`;
+  else if(mode==='pro'&&i===2) inner+=`<p style="margin:0">${s.detail.replace('而是先对自身直译结果展开自我批评','而是先对<mark class="del">自身直译结果</mark><mark class="ins">这一初稿</mark>展开批评')}，再输出<mark class="ins">符合中文表达习惯的</mark>定稿。</p><p class="panel-meta" style="margin-top:9px">Diff 视图：绿=定稿新增 · 红=直译删改</p>`;
+  else inner+=`<p style="margin:0">${s.detail}</p>`;
+  d.innerHTML=inner;d.classList.add('on');
+}
+function render(){
+  const prov=$('#prov');if(prov)prov.style.display=state==='done'?'inline-flex':'none';
+  $$('.out,.empty').forEach(e=>{const t=e.dataset.st;if(t)e.style.display=(t===state)?'':'none'});
+  const bar=$('#bar'),pct=$('#pct');
+  if(state==='done'){bar.style.width='100%';pct.textContent='100%'}
+  else if(state!=='working'||!timer){bar.style.width='0%';pct.textContent='0%'}
+  renderNodes();
+}
+
+/* ---------- 计数 ---------- */
+function count(){
+  const v=$('#src').value, chars=[...v].length;
+  const n=v?v.trim().split(/\n+/).filter(Boolean).length:1;
+  const cjk=(v.match(/[\u4e00-\u9fff]/g)||[]).length;
+  const zh=chars>0 && cjk/chars>0.15;                 // 中文占比 >15% 判定源语言为中文
+  $('#cc').textContent=`${chars} 字符 · ${n} 段`;
+  const tk=$('#tk'); if(tk) tk.textContent=`≈${Math.max(1,Math.round(zh?chars*0.75:chars/3.6))} tokens`;
+  const bs=document.querySelectorAll('.lang-btn b');
+  if(bs.length>1){bs[0].textContent=zh?'中文':'English';bs[1].textContent=zh?'English':'中文（简体）'}
+  const hc=document.querySelector('.chip.solid .mono');
+  if(hc) hc.textContent=v.trim()? (zh?'中文 → English':'EN → 中文') : '待输入';
+}
+
+/* ---------- 模拟运行 ---------- */
+function run(){
+  if(!$('#src').value.trim()){toast('请输入需要翻译的文本');return}
+  setState('working');const steps=MODES[mode].steps.length;let p=0;clearInterval(timer);
+  timer=setInterval(()=>{p+=Math.random()*7+3;if(p>=100){p=100;clearInterval(timer);timer=null;setState('done');toast(`${MODES[mode].label}完成 · 共 ${steps} 个阶段`)}
+    $('#bar').style.width=p+'%';$('#pct').textContent=Math.round(p)+'%';renderNodes()},260);
+}
+
+/* ---------- 事件 ---------- */
+$$('[data-v]').forEach(b=>b.onclick=()=>{body.dataset.variant=b.dataset.v;$$('[data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$$('[data-pane]').forEach(s=>s.classList.toggle('on',s.dataset.pane===b.dataset.v))});
+$$('[data-s]').forEach(b=>b.onclick=()=>{clearInterval(timer);timer=null;setState(b.dataset.s);$('#bar').style.width=b.dataset.s==='done'?'100%':'0%';$('#pct').textContent=b.dataset.s==='done'?'100%':'0%'});
+$$('.mcard').forEach(c=>c.onclick=()=>setMode(c.dataset.mode));
+$('[data-notes-toggle]').onclick=e=>{const on=body.dataset.notes!=='on';body.dataset.notes=on?'on':'off';e.currentTarget.setAttribute('aria-pressed',String(on));e.currentTarget.textContent=on?'隐藏改动标注':'显示改动标注'};
+$('#src').addEventListener('input',count);
+$('[data-clear]').onclick=()=>{$('#src').value='';count();toast('已清空原文')};
+$('[data-sample]').onclick=()=>{$('#src').value=SAMPLE;count();toast('已导入示例文本 · 自动识别为英译中')};
+$('[data-copy]').onclick=()=>{const t=$$('[data-st=done] .tr').map(e=>e.textContent).join('\n\n');navigator.clipboard?.writeText(t).then(()=>toast('译文已复制到剪贴板'),()=>toast('复制失败：请检查浏览器权限'))||toast('译文已复制')};
+$('[data-run]').onclick=run; $('[data-run-alt]').onclick=run;
+$('[data-menu]').onclick=e=>{$('#menu').classList.toggle('on');e.stopPropagation()};
+document.addEventListener('click',()=>$('#menu')?.classList.remove('on'));
+$('#menu')?.querySelectorAll('button').forEach(b=>b.onclick=()=>{setState('idle');clearInterval(timer);timer=null;toast(b.textContent.includes('所有')?'已重置三种模式的全部结果':'已重置')});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')run()});
+document.addEventListener('DOMContentLoaded',()=>{count();renderNodes()});
+count();render();renderNodes();
+</script>
+</body>
+</html>

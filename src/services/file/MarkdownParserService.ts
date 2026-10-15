@@ -1,5 +1,3 @@
-import { marked } from 'marked';
-
 export interface MarkdownSection {
   id: string;
   type: 'heading' | 'paragraph' | 'code' | 'list' | 'blockquote' | 'table' | 'html' | 'hr';
