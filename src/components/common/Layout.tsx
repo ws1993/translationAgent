@@ -5,6 +5,7 @@ function Layout() {
 
   const navItems = [
     { path: '/translation', label: '翻译' },
+    { path: '/file-translation', label: '文件翻译' },
     // { path: '/domains', label: '领域管理' },
     { path: '/settings', label: '设置' },
   ];

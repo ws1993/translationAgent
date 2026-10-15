@@ -36,7 +36,7 @@
 ## 技术栈
 
 - **前端框架**: React 18 + TypeScript
-- **构建工具**: Rsbuild (基于 Rspack)
+- **构建工具**: Rsbuild （基于 Rspack)
 - **状态管理**: Zustand
 - **路由**: React Router v6
 - **样式**: Tailwind CSS
