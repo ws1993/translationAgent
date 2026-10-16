@@ -312,40 +312,20 @@ function Translation() {
 
   return (
     <div className="space-y-5">
-      {/* ---------------- 页头 ---------------- */}
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="mb-1.5 text-[1.8rem] leading-[1.25] font-bold tracking-[-0.01em] text-ink">
-            智能双语工作台
-            <span className="ml-2 font-brand text-[1.4rem] font-normal italic text-muted">
-              Zh ↔ En
-            </span>
-          </h1>
-          <p className="m-0 text-[14.5px] leading-relaxed text-muted">
-            直译 → 批评审校 → 意译定稿，推理过程可见、术语按领域锁定。
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex h-7 items-center gap-2 rounded-full border border-border bg-surface px-2.5 text-[12.5px] text-muted">
-            <span className="font-mono text-ink">{sourceLangName}</span>
-            <span aria-hidden className="text-accent">→</span>
-            <span className="font-mono text-ink">{targetLangName}</span>
-            <button
-              type="button"
-              onClick={() => setSourceLangOverride(null)}
-              className={sourceLangOverride ? 'font-semibold text-accent-strong hover:underline' : 'hidden'}
-            >
-              改回自动
-            </button>
+      {willDowngrade && (
+        <header className="flex justify-end">
+          <span className="inline-flex h-7 items-center gap-1.5 rounded-full border border-accent/45 bg-accent-tint px-2.5 text-[12.5px] text-ink">
+            <TriangleAlert className="size-3.5 text-accent-strong" />
+            短文本将按极速直译处理
           </span>
-          {willDowngrade && (
-            <span className="inline-flex h-7 items-center gap-1.5 rounded-full border border-accent/45 bg-accent-tint px-2.5 text-[12.5px] text-ink">
-              <TriangleAlert className="size-3.5 text-accent-strong" />
-              短文本将按极速直译处理
-            </span>
-          )}
-        </div>
-      </header>
+        </header>
+      )}
+                短文本将按极速直译处理
+              </span>
+            )}
+          </div>
+        </header>
+      )}
 
       {/* ---------------- 配置区 ---------------- */}
       <Card className="p-5">

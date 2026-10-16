@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Languages, FileText, Settings } from 'lucide-react';
+import { Languages, Settings } from 'lucide-react';
 import { useLLMConfigStore } from '../../stores/llmConfigStore';
 import {
   Select,
@@ -12,7 +12,8 @@ import { cn } from '../../lib/utils';
 
 const navItems = [
   { path: '/translation', label: '翻译', icon: Languages },
-  { path: '/file-translation', label: '文件翻译', icon: FileText },
+  // TODO: 文件翻译待测试，入口先隐藏（Router 中的路由保留可直接访问）
+  // { path: '/file-translation', label: '文件翻译', icon: FileText },
   { path: '/settings', label: '设置', icon: Settings },
 ];
 
