@@ -320,12 +320,6 @@ function Translation() {
           </span>
         </header>
       )}
-                短文本将按极速直译处理
-              </span>
-            )}
-          </div>
-        </header>
-      )}
 
       {/* ---------------- 配置区 ---------------- */}
       <Card className="p-5">
@@ -415,6 +409,15 @@ function Translation() {
             </button>
             {targetLangName}
           </span>
+          {sourceLangOverride && (
+            <button
+              type="button"
+              onClick={() => setSourceLangOverride(null)}
+              className="text-[12px] text-accent-strong hover:underline"
+            >
+              改回自动识别
+            </button>
+          )}
           <span className="font-mono text-[11.5px] text-muted">
             {sourceChars} 字符{sourceParas ? ` · ${sourceParas} 段` : ''} · ≈{estimateTokens(sourceText)} tokens
           </span>

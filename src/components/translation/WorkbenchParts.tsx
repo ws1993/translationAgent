@@ -2,6 +2,7 @@ import * as React from "react"
 import { TranslationMode } from "../../types"
 import { Segmented, SegmentedItem } from "../ui/segmented"
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Button } from "../ui/button"
 import { Check, Circle, Copy, Info, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -91,11 +92,16 @@ export interface ModePickerProps {
 }
 
 export function ModePicker({ value, onChange, disabled, hasResult }: ModePickerProps) {
-  const [pinned, setPinned] = React.useState(false)
+  const [popoverOpen, setPopoverOpen] = React.useState(false)
+  const [viewingMode, setViewingMode] = React.useState<TranslationMode>(value)
   const meta = MODE_META[value]
 
+  React.useEffect(() => {
+    setViewingMode(value)
+  }, [value, popoverOpen])
+
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2">
       <TooltipProvider delayDuration={120}>
         <div className="flex flex-wrap items-center gap-2">
           <Segmented
@@ -117,28 +123,84 @@ export function ModePicker({ value, onChange, disabled, hasResult }: ModePickerP
             ))}
           </Segmented>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={pinned}
-            onClick={() => setPinned((p) => !p)}
-            className="gap-1.5 border border-border"
-          >
-            <Info className="size-3.5" />
-            固定详情
-          </Button>
-          <span className="hidden text-xs text-muted lg:inline">或悬停任一模式查看完整链路</span>
+          {/* 详情浮层 Popover：脱离文档流，点击弹出，不挤占页面高度 */}
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label="查看翻译模式详情与对比"
+                className={cn(
+                  "h-[30px] gap-1.5 border border-border px-2.5 text-xs transition-colors",
+                  popoverOpen
+                    ? "border-accent bg-accent-tint text-accent-strong"
+                    : "text-muted hover:bg-surface-1 hover:text-ink"
+                )}
+              >
+                <Info className="size-3.5" />
+                模式说明
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="bottom"
+              align="start"
+              className="w-[min(480px,94vw)] border-border bg-surface p-3.5 shadow-xl"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Info className="size-3.5 text-accent-strong" />
+                    <span className="text-[13px] font-bold text-ink">翻译模式详解与对比</span>
+                  </div>
+                  <span className="text-[11px] text-muted">支持点击任意模式快速预览</span>
+                </div>
+
+                {/* 模式快速切换标签 */}
+                <div className="flex gap-1 rounded-lg border border-border bg-surface-1 p-1">
+                  {MODE_ORDER.map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setViewingMode(k)}
+                      className={cn(
+                        "flex-1 cursor-pointer rounded-md px-2 py-1 text-center text-xs font-medium transition-all",
+                        viewingMode === k
+                          ? "bg-accent-strong font-semibold text-white shadow-2xs"
+                          : "text-muted hover:bg-surface hover:text-ink"
+                      )}
+                    >
+                      {MODE_META[k].label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="rounded-lg border border-border bg-surface-1/60 p-3">
+                  <ModeDetail mode={viewingMode} />
+                </div>
+
+                {viewingMode !== value && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-8 w-full text-xs font-medium"
+                    onClick={() => {
+                      onChange(viewingMode)
+                      setPopoverOpen(false)
+                    }}
+                  >
+                    切换为「{MODE_META[viewingMode].label}」
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <span className="hidden text-xs text-muted lg:inline">或悬停任一模式快速查看</span>
         </div>
       </TooltipProvider>
 
-      {pinned && (
-        <div className="rounded-panel border border-border bg-paper px-3.5 py-3">
-          <ModeDetail mode={value} />
-        </div>
-      )}
-
-      {/* 常驻摘要：身份与代价不可隐藏 */}
+      {/* 常驻单行摘要：保持紧凑，不挤占页面高度 */}
       <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs leading-[1.6] text-muted">
         <span>
           已选 <b className="font-semibold text-ink">{meta.label}</b>
