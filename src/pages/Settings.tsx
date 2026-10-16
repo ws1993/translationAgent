@@ -18,6 +18,7 @@ import { Label } from '../components/ui/label';
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import { Trash2, Plus, Pencil } from 'lucide-react';
+import { cn } from '../lib/utils';
 import { WebDAVSettings } from '../components/webdav/WebDAVSettings';
 
 function Settings() {
@@ -193,16 +194,14 @@ function Settings() {
           {configs.map((config) => (
             <div
               key={config.id}
-              className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+              className={cn(
+                'flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors',
                 config.id === activeConfigId
                   ? 'border-accent bg-accent/5'
                   : 'border-border hover:border-accent/50'
-              }`}
+              )}
             >
-              <div
-                className="flex-1 cursor-pointer"
-                onClick={() => setActiveConfig(config.id)}
-              >
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">
                   <div className="font-medium text-ink">{config.name}</div>
                   {config.id === activeConfigId && (
@@ -211,18 +210,28 @@ function Settings() {
                     </span>
                   )}
                 </div>
-                <div className="text-sm text-muted mt-1">
+                <div className="mt-1 truncate text-sm text-muted">
                   {config.provider} · {config.model}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
+                {/* 原来只能点卡片左侧区域静默切换，看不出可以点；这里给出显式入口 */}
+                {config.id !== activeConfigId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setActiveConfig(config.id);
+                      toast.success(`已切换到 ${config.model}`);
+                    }}
+                  >
+                    设为使用中
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenEditDialog(config);
-                  }}
+                  onClick={() => handleOpenEditDialog(config)}
                   title="编辑"
                 >
                   <Pencil className="h-4 w-4" />
@@ -230,10 +239,7 @@ function Settings() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteConfig(config.id);
-                  }}
+                  onClick={() => handleDeleteConfig(config.id)}
                   title="删除"
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />

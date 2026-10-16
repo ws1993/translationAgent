@@ -38,6 +38,7 @@ import { ProfessionalTranslationModal } from '../components/translation/Professi
 import { DomainAdaptiveTranslationModal } from '../components/translation/DomainAdaptiveTranslationModal';
 import { TranslationReport } from '../components/translation/TranslationReport';
 import { ParagraphComparisonModal } from '../components/translation/ParagraphComparisonModal';
+import { alignParagraphs, countParagraphs } from '../utils/paragraphs';
 import { toast } from 'sonner';
 import { ArrowLeftRight, Columns3, FileText, Loader2, TriangleAlert } from 'lucide-react';
 
@@ -61,13 +62,8 @@ const STAGES: Record<TranslationMode, { key: string; label: string }[]> = {
   ],
 };
 
-/** 按空行切段；段数不匹配时退化为整块，避免错位对齐 */
-function toPairs(source: string, translated: string) {
-  const S = source.trim().split(/\n{2,}/).filter(Boolean);
-  const T = translated.trim().split(/\n{2,}/).filter(Boolean);
-  if (S.length !== T.length) return [{ source: source.trim(), target: translated.trim() }];
-  return S.map((s, i) => ({ source: s, target: T[i] }));
-}
+/** 分段对齐：与顶部「N 段」统计、段落对照浮层共用同一口径（见 utils/paragraphs） */
+const toPairs = alignParagraphs;
 
 function estimateTokens(text: string) {
   const chars = [...text].length;
@@ -307,7 +303,7 @@ function Translation() {
   };
 
   const sourceChars = [...sourceText].length;
-  const sourceParas = sourceText.trim() ? sourceText.trim().split(/\n{2,}/).length : 0;
+  const sourceParas = countParagraphs(sourceText);
   const runModeState = runningMode ? getModeState(runningMode) : null;
   const runProgress: TranslationProgress = runModeState?.progress ?? progress;
 
@@ -522,7 +518,7 @@ function Translation() {
                 {outputFormat === OutputFormat.BILINGUAL
                   ? pairs.map((p, i) => (
                       <div key={i} className="mb-4 border-b border-dashed border-border pb-3 last:mb-0 last:border-0 last:pb-0">
-                        <p className="m-0 mb-1 text-[13px] leading-[1.6] text-muted">{p.source}</p>
+                        <p className="m-0 whitespace-pre-wrap mb-1 text-[13px] leading-[1.6] text-muted">{p.source}</p>
                         <p className="m-0 whitespace-pre-wrap text-[15.5px] leading-[1.9] text-ink">{p.target}</p>
                       </div>
                     ))

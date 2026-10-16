@@ -121,11 +121,24 @@
     animation: ta-shimmer 1.5s linear infinite;
   }
 
+  /* 减少动态效果：必须同时收敛 iteration-count，否则 infinite 动画在 0.01ms 下
+     会疯狂循环（loading 表现为「转得极快」）；滚动行为同样归位 */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
+    /* 例外：加载指示器不能静止，否则用户无法判断是否卡住。
+       用慢速离散步进（steps）替代连续旋转，既保留反馈又不触发前庭不适 */
+    .animate-spin {
+      animation: ta-spin-stepped 2s steps(8) infinite !important;
+    }
+  }
+
+  @keyframes ta-spin-stepped {
+    to { transform: rotate(360deg); }
   }
 }
 

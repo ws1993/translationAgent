@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Minimize2 } from 'lucide-react';
+import { splitParagraphs } from '../../utils/paragraphs';
 
 interface ParagraphComparisonModalProps {
   isOpen: boolean;
@@ -29,16 +30,9 @@ export function ParagraphComparisonModal({
   const targetScrollRef = useRef<HTMLDivElement>(null);
   const isScrollingSyncRef = useRef(false);
 
-  // 分段逻辑：按换行符分段
-  const sourceParagraphs: Paragraph[] = sourceText
-    .split('\n')
-    .filter(p => p.trim())
-    .map((text, idx) => ({ id: idx, text: text.trim() }));
-
-  const targetParagraphs: Paragraph[] = translatedText
-    .split('\n')
-    .filter(p => p.trim())
-    .map((text, idx) => ({ id: idx, text: text.trim() }));
+  // 分段口径与主面板、顶部段数统计一致（见 utils/paragraphs）
+  const sourceParagraphs: Paragraph[] = splitParagraphs(sourceText).map((text, idx) => ({ id: idx, text }));
+  const targetParagraphs: Paragraph[] = splitParagraphs(translatedText).map((text, idx) => ({ id: idx, text }));
 
   // 同步滚动
   const handleScroll = (source: 'source' | 'target') => {
