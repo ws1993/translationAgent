@@ -13,10 +13,13 @@ const buttonVariants = cva(
           "border border-border bg-surface hover:bg-surface-1 text-ink",
         ghost: "hover:bg-accent-tint hover:text-accent-hover text-muted",
         link: "text-accent underline-offset-4 hover:underline",
+        danger:
+          "border border-danger/25 bg-surface text-danger hover:bg-danger/10 hover:border-danger/45 active:bg-danger/15",
       },
       size: {
         default: "h-10 px-6 py-2",
         sm: "h-9 rounded-lg px-4 text-xs",
+        xs: "h-7.5 rounded-md px-2.5 text-xs",
         lg: "h-11 rounded-lg px-10 py-3 text-base",
         icon: "h-10 w-10",
       },

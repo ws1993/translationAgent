@@ -106,18 +106,19 @@ export function ParagraphComparisonModal({
               <Minimize2 className="w-3 h-3" />
               段落对照模式
             </div>
-            <h1 className="text-2xl font-serif font-bold tracking-tight">
-              Interactive <span className="text-accent italic">Paragraph Comparison</span>
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              段落深度对照 <span className="text-accent italic font-brand text-lg ml-2 font-normal">Paragraph Alignment</span>
             </h1>
             <p className="text-sm text-white/70 mt-1">
-              {sourceLang} ⇄ {targetLang} · 点击或悬浮段落查看对应关系
+              {sourceLang} ⇄ {targetLang} · 点击或悬浮任意段落即时联动高亮
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-md hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-white/80" />
           </button>
         </div>
 
@@ -125,13 +126,14 @@ export function ParagraphComparisonModal({
         <div className="flex-1 flex overflow-hidden">
           {/* Source Column */}
           <div className="flex-1 flex flex-col border-r border-warm-border">
-            <div className="bg-surface-1 px-6 py-3 border-b border-warm-border">
-              <h2 className="text-sm font-semibold text-ink">{sourceLang}</h2>
+            <div className="h-11 bg-surface-1 px-6 border-b border-warm-border flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-ink">{sourceLang} 原文</h2>
+              <span className="text-xs font-mono text-muted">{sourceParagraphs.length} 段</span>
             </div>
             <div
               ref={sourceScrollRef}
               onScroll={() => handleScroll('source')}
-              className="flex-1 overflow-y-auto px-6 py-4 space-y-3"
+              className="flex-1 overflow-y-auto px-6 py-4 space-y-3 scrollbar-thin"
             >
               {sourceParagraphs.map((para) => (
                 <div
@@ -171,13 +173,14 @@ export function ParagraphComparisonModal({
 
           {/* Target Column */}
           <div className="flex-1 flex flex-col">
-            <div className="bg-surface-1 px-6 py-3 border-b border-warm-border">
-              <h2 className="text-sm font-semibold text-ink">{targetLang}</h2>
+            <div className="h-11 bg-surface-1 px-6 border-b border-warm-border flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-ink">{targetLang} 译文</h2>
+              <span className="text-xs font-mono text-muted">{targetParagraphs.length} 段</span>
             </div>
             <div
               ref={targetScrollRef}
               onScroll={() => handleScroll('target')}
-              className="flex-1 overflow-y-auto px-6 py-4 space-y-3"
+              className="flex-1 overflow-y-auto px-6 py-4 space-y-3 scrollbar-thin"
             >
               {targetParagraphs.map((para) => (
                 <div

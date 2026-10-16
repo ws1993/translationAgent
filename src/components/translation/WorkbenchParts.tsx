@@ -178,15 +178,18 @@ export function ProgressStrip({
     <div className="border-t border-border bg-surface-1 px-4 py-3.5">
       <div className="mb-2.5 flex items-center gap-3">
         <span className="text-[13px] font-semibold text-ink">推理链路</span>
-        <div className="h-[5px] max-w-[260px] flex-1 overflow-hidden rounded-full bg-border">
+        <div className="h-[6px] max-w-[260px] flex-1 overflow-hidden rounded-full bg-border">
           <div
-            className="h-full rounded-full bg-linear-to-r from-accent to-accent-strong transition-[width] duration-500 ease-out"
+            className={cn(
+              "h-full rounded-full bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-500 ease-out",
+              active && percent < 100 && "progress-flow-bar"
+            )}
             style={{ width: `${Math.max(0, Math.min(100, percent))}%` }}
           />
         </div>
         <span className="font-mono text-[11.5px] text-muted">{percent}%</span>
         {onViewProcess && (
-          <Button type="button" variant="ghost" size="sm" onClick={onViewProcess} className="ml-auto">
+          <Button type="button" variant="ghost" size="xs" onClick={onViewProcess} className="ml-auto text-xs">
             展开过程
           </Button>
         )}
@@ -200,18 +203,18 @@ export function ProgressStrip({
             <li
               key={s.key}
               className={cn(
-                "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-medium",
+                "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-medium transition-all",
                 done
                   ? "border-success/35 bg-success/5 text-success"
                   : running
-                    ? "border-accent bg-accent-tint text-ink"
+                    ? "border-accent bg-accent-tint text-ink ring-1 ring-accent/30 pulse-subtle"
                     : "border-border bg-surface text-muted"
               )}
             >
               {done ? (
                 <Check className="size-3.5" />
               ) : running ? (
-                <Loader2 className="size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin text-accent-strong" />
               ) : (
                 <Circle className="size-3.5" />
               )}
@@ -231,10 +234,12 @@ export function ProgressStrip({
 export function CopyButton({
   text,
   label = "复制译文",
+  size = "xs",
   className,
 }: {
   text: string
   label?: string
+  size?: "default" | "sm" | "xs" | "lg" | "icon"
   className?: string
 }) {
   const [ok, setOk] = React.useState(false)
@@ -244,8 +249,8 @@ export function CopyButton({
     <Button
       type="button"
       variant="outline"
-      size="sm"
-      className={className}
+      size={size}
+      className={cn("h-7.5 px-2.5 text-[12px] font-medium gap-1.5 border-border hover:bg-accent-tint hover:border-accent/40", className)}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text)
@@ -257,8 +262,8 @@ export function CopyButton({
         }
       }}
     >
-      {ok ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-      {ok ? "已复制" : label}
+      {ok ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5 text-muted" />}
+      <span className={ok ? "text-success font-medium" : ""}>{ok ? "已复制" : label}</span>
     </Button>
   )
 }

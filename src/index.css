@@ -110,15 +110,63 @@
     background-color: rgba(200, 133, 63, 0.55);
   }
   /* 加载骨架条：Translation 译文面板「进行中」态使用；
-     宽度由调用处的 w-[92%] 等工具类控制，这里只管底色与流光 */
+     平滑柔和的自然流光与轻微呼吸感 */
   @keyframes ta-shimmer {
-    to { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
   .skeleton-line {
     border-radius: 6px;
-    background: linear-gradient(90deg, var(--color-paper), var(--color-accent-tint), var(--color-paper));
+    background: linear-gradient(
+      90deg,
+      rgba(226, 217, 200, 0.35) 0%,
+      rgba(240, 227, 208, 0.95) 45%,
+      rgba(200, 133, 63, 0.15) 55%,
+      rgba(226, 217, 200, 0.35) 100%
+    );
     background-size: 200% 100%;
-    animation: ta-shimmer 1.5s linear infinite;
+    animation: ta-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* 进度条进行中流光条纹动画 */
+  @keyframes ta-progress-flow {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 28px 0;
+    }
+  }
+  .progress-flow-bar {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.24) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.24) 50%,
+      rgba(255, 255, 255, 0.24) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 28px 28px;
+    animation: ta-progress-flow 1.2s linear infinite;
+  }
+
+  /* 柔和呼吸态 */
+  @keyframes ta-pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.65;
+    }
+  }
+  .pulse-subtle {
+    animation: ta-pulse-subtle 1.8s ease-in-out infinite;
   }
 
   /* 减少动态效果：必须同时收敛 iteration-count，否则 infinite 动画在 0.01ms 下

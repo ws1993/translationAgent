@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { TranslationProgress } from '../../stores/translationStore';
 import ReactMarkdown from 'react-markdown';
+import { cn } from '../../lib/utils';
 
 interface ProfessionalTranslationModalProps {
   isOpen: boolean;
@@ -75,11 +76,11 @@ export function ProfessionalTranslationModal({
     if (status !== 'active' || !isCurrentlyActive) return null;
 
     return (
-      <div className="mb-4 p-3 bg-accent-tint rounded-lg border border-accent/30 flex items-center gap-3">
-        <Loader2 className="w-4 h-4 text-accent animate-spin flex-shrink-0" />
+      <div className="mb-4 p-3 bg-accent-tint/60 rounded-xl border border-accent/30 flex items-center gap-3 shadow-2xs">
+        <Loader2 className="w-4 h-4 text-accent-strong animate-spin flex-shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-accent">{getThinkingText(stage)}</p>
-          <p className="text-xs text-muted mt-0.5">内容将实时流式显示</p>
+          <p className="text-sm font-semibold text-accent-strong">{getThinkingText(stage)}</p>
+          <p className="text-xs text-muted mt-0.5">模型正在深度思考并实时流式输出…</p>
         </div>
       </div>
     );
@@ -104,6 +105,7 @@ export function ProfessionalTranslationModal({
             <p className="text-xs text-muted mt-1">流式实时输出 · 透明化翻译过程</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-border transition-all"
           >
@@ -115,11 +117,14 @@ export function ProfessionalTranslationModal({
         <div className="px-6 py-4 bg-surface-1 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-ink">翻译进度</p>
-            <p className="text-sm font-bold text-accent">{progress.progress}%</p>
+            <p className="text-sm font-bold text-accent-strong font-mono">{progress.progress}%</p>
           </div>
           <div className="relative h-2 bg-border rounded-full overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent to-accent-strong transition-all duration-500 ease-out rounded-full"
+              className={cn(
+                "absolute inset-y-0 left-0 bg-gradient-to-r from-accent to-accent-strong transition-all duration-500 ease-out rounded-full",
+                progress.stage !== 'idle' && progress.progress < 100 && "progress-flow-bar"
+              )}
               style={{ width: `${progress.progress}%` }}
             />
           </div>
@@ -132,16 +137,16 @@ export function ProfessionalTranslationModal({
                 <div key={tab.key} className="flex items-center gap-2 flex-1">
                   <div className="flex items-center gap-2 flex-1">
                     {status === 'completed' ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
                     ) : status === 'active' ? (
-                      <Loader2 className="w-5 h-5 text-accent animate-spin flex-shrink-0" />
+                      <Loader2 className="w-5 h-5 text-accent-strong animate-spin flex-shrink-0" />
                     ) : (
                       <Circle className="w-5 h-5 text-muted flex-shrink-0" />
                     )}
                     <div className="flex-1">
                       <p className={`text-xs font-semibold ${
-                        status === 'completed' ? 'text-green-600' :
-                        status === 'active' ? 'text-accent' :
+                        status === 'completed' ? 'text-success' :
+                        status === 'active' ? 'text-accent-strong' :
                         'text-muted'
                       }`}>
                         {tab.label}
@@ -150,7 +155,9 @@ export function ProfessionalTranslationModal({
                     </div>
                   </div>
                   {index < tabs.length - 1 && (
-                    <div className="w-8 h-0.5 bg-border flex-shrink-0" />
+                    <div className={`w-8 h-0.5 flex-shrink-0 ${
+                      status === 'completed' ? 'bg-success/50' : 'bg-border'
+                    }`} />
                   )}
                 </div>
               );

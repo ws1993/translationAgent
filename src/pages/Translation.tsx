@@ -40,7 +40,8 @@ import { TranslationReport } from '../components/translation/TranslationReport';
 import { ParagraphComparisonModal } from '../components/translation/ParagraphComparisonModal';
 import { alignParagraphs, countParagraphs } from '../utils/paragraphs';
 import { toast } from 'sonner';
-import { ArrowLeftRight, Columns3, FileText, Loader2, TriangleAlert } from 'lucide-react';
+import { ArrowLeftRight, Clipboard, Columns3, FileText, Loader2, Sparkles, Trash2, TriangleAlert } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const AUTO = '__auto__';
 const GENERAL = '__general__';
@@ -71,6 +72,8 @@ function estimateTokens(text: string) {
   const cjk = (text.match(/[\u3400-\u9fff]/g) || []).length;
   return Math.max(1, Math.round(cjk / chars > 0.15 ? chars * 0.75 : chars / 3.6));
 }
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
 
 function Translation() {
   const [sourceText, setSourceText] = useState('');
@@ -414,10 +417,13 @@ function Translation() {
       </Card>
 
       {/* ---------------- 工作台 ---------------- */}
-      <Card className="overflow-hidden p-0 shadow-lg">
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface-1 px-4 py-2.5">
+      <Card className="relative overflow-hidden p-0 shadow-lg">
+        {isTranslating && (
+          <div className="absolute top-0 inset-x-0 h-[2.5px] bg-gradient-to-r from-accent via-accent-strong to-accent progress-flow-bar z-10" />
+        )}
+        <div className="flex flex-wrap items-center gap-2.5 border-b border-border bg-surface-1 px-4 py-2.5">
           <span className="text-[13px] font-semibold text-ink">语言方向</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface px-3 py-1 text-[13px] font-semibold text-ink">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface px-3 py-1 text-[13px] font-semibold text-ink shadow-2xs">
             {sourceLangName}
             <button
               type="button"
@@ -432,23 +438,29 @@ function Translation() {
           <span className="font-mono text-[11.5px] text-muted">
             {sourceChars} 字符{sourceParas ? ` · ${sourceParas} 段` : ''} · ≈{estimateTokens(sourceText)} tokens
           </span>
-          <span className="ml-auto text-[12px] text-muted">
-            <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10.5px] not-italic">Ctrl</kbd>
-            <span aria-hidden>+</span>
-            <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10.5px] not-italic">Enter</kbd>
-            开始翻译
+          <span className="ml-auto flex items-center gap-1.5 text-[12px] text-muted">
+            <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10.5px] font-medium shadow-2xs">
+              {isMac ? '⌘' : 'Ctrl'}
+            </kbd>
+            <span aria-hidden className="text-muted/60">+</span>
+            <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10.5px] font-medium shadow-2xs">
+              Enter
+            </kbd>
+            <span className="ml-0.5">开始翻译</span>
           </span>
         </div>
 
         <div className="grid grid-cols-1 gap-px bg-border lg:grid-cols-2">
           {/* 原文 */}
           <div className="flex min-h-[380px] flex-col bg-surface">
-            <div className="flex items-center gap-2 border-b border-border bg-surface-1 px-4 py-2">
+            <div className="flex h-11 items-center gap-2 border-b border-border bg-surface-1 px-4">
               <span className="text-[13px] font-bold text-ink">原文</span>
-              <span className="ml-auto flex items-center gap-1">
-                <button
+              <span className="ml-auto flex items-center gap-1.5">
+                <Button
                   type="button"
-                  className="rounded-md px-2 py-1 text-[12.5px] text-muted transition-colors hover:bg-accent-tint hover:text-ink"
+                  variant="ghost"
+                  size="xs"
+                  className="h-7.5 px-2.5 text-[12px] text-muted hover:bg-accent-tint hover:text-ink gap-1"
                   onClick={async () => {
                     try {
                       const t = await navigator.clipboard.readText();
@@ -461,16 +473,20 @@ function Translation() {
                     }
                   }}
                 >
+                  <Clipboard className="size-3.5 text-muted" />
                   粘贴
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="xs"
                   disabled={!sourceText || isTranslating}
-                  className="rounded-md px-2 py-1 text-[12.5px] text-muted transition-colors hover:bg-accent-tint hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="h-7.5 px-2.5 text-[12px] text-muted hover:bg-accent-tint hover:text-ink disabled:pointer-events-none disabled:opacity-40 gap-1"
                   onClick={() => setSourceText('')}
                 >
+                  <Trash2 className="size-3.5 text-muted" />
                   清空
-                </button>
+                </Button>
               </span>
             </div>
             <Textarea
@@ -486,7 +502,7 @@ function Translation() {
 
           {/* 译文：空态 / 进行中 / 完成 三态互斥 */}
           <div className="flex min-h-[380px] flex-col bg-surface">
-            <div className="flex items-center gap-2 border-b border-border bg-surface-1 px-4 py-2">
+            <div className="flex h-11 items-center gap-2 border-b border-border bg-surface-1 px-4">
               <span className="text-[13px] font-bold text-ink">译文</span>
               {displayResult && currentTask && (
                 <span className="inline-flex items-center gap-1.5 rounded-md bg-accent-tint px-2 py-0.5 text-[11.5px] font-semibold text-accent-strong">
@@ -494,23 +510,31 @@ function Translation() {
                   {stale && <span className="font-normal text-muted">· 原文已修改</span>}
                 </span>
               )}
-              <span className="ml-auto">
+              <span className="ml-auto flex items-center">
                 <CopyButton text={copyText} label="复制" />
               </span>
             </div>
 
             {isTranslating ? (
-              <div role="status" aria-live="polite" className="flex-1 p-4">
-                <p className="mb-3 flex items-center gap-2 text-[13px] text-muted">
+              <div role="status" aria-live="polite" className="flex-1 p-5">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-tint/60 px-3 py-1 text-[12.5px] font-medium text-accent-strong">
                   <LoaderInline />
-                  正在{STAGES[mode].find((s) => s.key === progress.stage)?.label ?? '生成译文'}…
-                  <span className="font-mono">{progress.progress}%</span>
-                </p>
-                <div className="space-y-2.5">
-                  <div className="skeleton-line h-3 w-[92%]" />
-                  <div className="skeleton-line h-3 w-[78%]" />
-                  <div className="skeleton-line h-3 w-[86%]" />
-                  <div className="skeleton-line h-3 w-[54%]" />
+                  <span>
+                    正在{STAGES[mode].find((s) => s.key === progress.stage)?.label ?? '生成译文'}…
+                  </span>
+                  <span className="font-mono text-xs">{progress.progress}%</span>
+                </div>
+                {/* 仿真段落骨架屏：高度匹配真实文本行高，自然分段流光 */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="skeleton-line h-4 w-[96%]" />
+                    <div className="skeleton-line h-4 w-[88%]" />
+                    <div className="skeleton-line h-4 w-[65%]" />
+                  </div>
+                  <div className="space-y-2 pt-1">
+                    <div className="skeleton-line h-4 w-[92%]" />
+                    <div className="skeleton-line h-4 w-[74%]" />
+                  </div>
                 </div>
               </div>
             ) : displayResult ? (
@@ -533,7 +557,7 @@ function Translation() {
                 <span className="max-w-[34ch] text-[13px] leading-relaxed text-muted">
                   {sourceText.trim()
                     ? `将按「${MODE_META[mode].label}」输出，预计 ${MODE_META[mode].time}`
-                    : '先在左侧输入文本，或按 Ctrl+Enter 直接开始'}
+                    : '先在左侧输入文本，或按快捷键直接开始'}
                 </span>
               </div>
             )}
@@ -656,8 +680,8 @@ function Translation() {
   );
 }
 
-function LoaderInline() {
-  return <Loader2 className="size-4 animate-spin text-accent-strong" />;
+function LoaderInline({ className = "size-3.5" }: { className?: string }) {
+  return <Loader2 className={cn("animate-spin text-accent-strong", className)} />;
 }
 
 export default Translation;
