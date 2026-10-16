@@ -111,23 +111,37 @@ h1.pg .lat{font-family:var(--serif);font-weight:400;font-style:italic;color:var(
 body[data-notes=on] .note{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin-left:8px;padding:1px 8px 1px 6px;border-radius:999px;background:#FDF3E3;border:1px dashed var(--copper);color:var(--copper-ink);font-size:11.5px;font-weight:600;letter-spacing:.01em}
 .note::before{content:"↳";font-family:var(--mono)}
 
-/* ---------- 模式能力矩阵（参考方案 §3.1，采纳） ---------- */
-.matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.mcard{position:relative;text-align:left;padding:16px 16px 14px;border-radius:var(--r-m);border:1px solid var(--border);background:var(--surface-2);cursor:pointer;transition:border-color .16s,box-shadow .16s,background .16s}
-.mcard:hover{border-color:var(--border-strong);box-shadow:var(--sh-2)}
-.mcard[aria-checked=true]{border-color:var(--copper);background:linear-gradient(180deg,#FDF8F0,var(--surface-2));box-shadow:0 0 0 1px var(--copper),var(--sh-2)}
-.mcard:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--copper)}
-.mcard-top{display:flex;align-items:center;gap:9px}
-.mcard-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--tint);color:var(--copper-ink);flex:none}
-.mcard[aria-checked=true] .mcard-ic{background:var(--copper);color:#fff}
-.mcard-name{font-size:15px;font-weight:700;letter-spacing:-.01em}
-.mcard-time{margin-left:auto;white-space:nowrap;font-family:var(--mono);font-size:11.5px;color:var(--muted-strong);background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
-.mcard-chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:11px 0 8px;font-size:11.5px;color:var(--muted-strong);font-family:var(--mono)}
-.mcard-chain span{padding:1px 6px;border-radius:5px;background:var(--paper);border:1px solid var(--border)}
-.mcard-desc{font-size:13px;color:var(--muted-strong);line-height:1.55}
-.mcard-flag{position:absolute;top:-9px;right:12px;height:20px;padding:0 8px;display:inline-flex;align-items:center;border-radius:999px;background:var(--copper-ink);color:#fff;font-size:11px;font-weight:600}
-.mcard-result{position:absolute;bottom:12px;right:14px;display:none;align-items:center;gap:5px;font-size:11px;color:var(--copper-ink);font-weight:600}
-body[data-state=done] .mcard[data-has-result] .mcard-result{display:inline-flex}
+/* ---------- 翻译模式：紧凑段控（方案 B v2）+ hover 详情披露 ---------- */
+.modes{position:relative;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mode-bar{display:flex;gap:4px;padding:4px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2)}
+.mode{position:relative;display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:var(--muted-strong);font-size:13.5px;font-weight:600;letter-spacing:-.005em;cursor:pointer;white-space:nowrap;transition:background .16s,color .16s,box-shadow .16s}
+.mode:hover{background:var(--surface);color:var(--ink)}
+.mode:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--copper)}
+.mode[aria-checked=true]{background:var(--copper-ink);color:#fff;box-shadow:0 1px 4px rgba(143,90,32,.28)}
+.mode[aria-checked=true]:hover{background:var(--copper-deep);color:#fff}
+.mode-ic{display:grid;place-items:center;flex:none;opacity:.9}
+.mode-t{font-family:var(--mono);font-size:10.5px;font-weight:500;opacity:.75}
+.mode-r{width:5px;height:5px;border-radius:50%;background:var(--copper);display:none;flex:none}
+.mode[aria-checked=true] .mode-r{background:#fff}
+body[data-state=done] .mode[data-has-result] .mode-r{display:block}
+.mode-detail{position:absolute;left:0;top:calc(100% + 9px);width:min(440px,90vw);padding:13px 15px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);box-shadow:var(--sh-3);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease,visibility .16s;z-index:35;pointer-events:none}
+.mode-detail::before{content:"";position:absolute;left:26px;top:-7px;width:12px;height:12px;background:var(--surface-2);border-left:1px solid var(--border-strong);border-top:1px solid var(--border-strong);transform:rotate(45deg)}
+.modes.open .mode-detail,.mode-detail.pinned{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.md-top{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.md-nm{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.md-time{font-family:var(--mono);font-size:11.5px;color:var(--copper-ink)}
+.md-auto{margin-left:auto;font-size:11px;color:var(--muted-strong)}
+.md-chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:8px}
+.md-chain b{font-weight:500;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;background:var(--paper);border:1px solid var(--border)}
+.md-chain i{font-style:normal;color:var(--copper);font-size:11px}
+.md-desc{margin:0;font-size:12.5px;line-height:1.65;color:var(--muted-strong)}
+.md-scene{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);font-size:12px;color:var(--muted-strong)}
+.md-scene b{color:var(--ink);font-weight:600}
+.mode-sum{width:100%;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12px;color:var(--muted-strong)}
+.mode-sum b{font-weight:600;color:var(--ink)}
+.mode-sum .mono{font-size:11.5px;color:var(--copper-ink)}
+.mode-sum .chain{font-family:var(--mono);font-size:11px}
+.mode-sum .sep{color:var(--border-strong)}
 .cfg-row{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px dashed var(--border)}
 .mini-seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:var(--r-s);overflow:hidden;background:var(--surface-2)}
 .mini-seg button{padding:7px 13px;border:0;background:transparent;font-size:13px;font-weight:600;color:var(--muted-strong);cursor:pointer}
@@ -145,7 +159,8 @@ select.sel{height:36px;padding:0 30px 0 11px;border:1px solid var(--border-stron
 .swap:hover{background:var(--tint);border-color:var(--copper)}
 .wb-grid{display:grid;grid-template-columns:1fr 1fr;background:var(--border)}
 @media (max-width:900px){.wb-grid{grid-template-columns:1fr;background:var(--border)}}
-@media (max-width:860px){.matrix{grid-template-columns:1fr}.mcard-flag{position:static;display:inline-flex;margin-bottom:8px}}
+@media (max-width:860px){.mode-bar{width:100%}.mode{flex:1 1 auto;justify-content:center}.mode-detail{width:min(360px,92vw)}}
+@media (hover:none){#hoverTip{display:none}}
 @media (max-width:1080px){.appbar-in{flex-wrap:wrap;height:auto;padding:10px 18px;gap:12px}.gstate{width:100%;margin-left:0;order:3}.wrap{padding:20px 18px 64px}.toolbar-sticky{top:auto;position:static}}
 @media (max-width:560px){.nav a{padding:8px 9px;font-size:13.5px}.nav a svg{display:none}.pg-head{align-items:flex-start}}
 .panel{background:var(--surface-2);display:flex;flex-direction:column;min-height:392px}
@@ -288,26 +303,30 @@ section[data-pane].on{display:block}
     </div>
 
     <div class="card card-pad">
-      <span class="lbl">翻译模式<span class="note">P0-5 三模式差异必须自解释：链路 + 耗时 + 场景</span></span>
-      <div class="matrix" role="radiogroup" aria-label="翻译模式">
-        <button class="mcard" role="radio" aria-checked="false" data-mode="quick">
-          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span class="mcard-name">极速直译</span><span class="mcard-time">≈1–2s</span></span>
-          <span class="mcard-chain"><span>单次推理</span></span>
-          <p class="mcard-desc">日常沟通、短句即时翻译。响应优先，不做二次审校。</p>
+      <span class="lbl">翻译模式<span class="note">P0-5 链路/场景详情改为 hover 披露，常驻仅一行摘要</span></span>
+      <div class="modes" id="modes">
+        <div class="mode-bar" role="radiogroup" aria-label="翻译模式">
+          <button class="mode" role="radio" aria-checked="false" data-mode="quick" aria-describedby="modeSum">
+            <span class="mode-ic" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
+            极速直译<span class="mode-t">1–2s</span><span class="mode-r" aria-hidden="true"></span>
+          </button>
+          <button class="mode" role="radio" aria-checked="false" data-mode="pro" data-has-result="1" aria-describedby="modeSum">
+            <span class="mode-ic" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3l2.5 5.2 5.5.8-4 3.9 1 5.6-5-2.8-5 2.8 1-5.6-4-3.9 5.5-.8z"/></svg></span>
+            专业三步<span class="mode-t">5–8s</span><span class="mode-r" aria-hidden="true"></span>
+          </button>
+          <button class="mode" role="radio" aria-checked="true" data-mode="domain" aria-describedby="modeSum">
+            <span class="mode-ic" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 19V9l8-5 8 5v10"/><path d="M9 19v-6h6v6"/></svg></span>
+            领域自适应<span class="mode-t">10–15s</span><span class="mode-r" aria-hidden="true"></span>
+          </button>
+        </div>
+        <button class="btn sm" id="modePin" aria-pressed="false" aria-controls="modeDetail" aria-expanded="false" title="固定详情（触屏 / 键盘可用），Esc 关闭">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 16v6M9 2h6l-1 7 3 3v2H7v-2l3-3z"/></svg>固定详情
         </button>
-        <button class="mcard" role="radio" aria-checked="false" data-mode="pro" data-has-result="1">
-          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l2.5 5.2 5.5.8-4 3.9 1 5.6-5-2.8-5 2.8 1-5.6-4-3.9 5.5-.8z"/></svg></span><span class="mcard-name">专业三步</span><span class="mcard-time">≈5–8s</span></span>
-          <span class="mcard-chain"><span>直译</span><span>批评</span><span>意译</span></span>
-          <p class="mcard-desc">论文、商务邮件。自动纠语法硬伤与语境生硬，追求信达雅。</p>
-          <span class="mcard-result">● 已有结果</span>
-        </button>
-        <button class="mcard" role="radio" aria-checked="true" data-mode="domain">
-          <span class="mcard-flag">长文推荐</span>
-          <span class="mcard-top"><span class="mcard-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19V9l8-5 8 5v10"/><path d="M9 19v-6h6v6"/></svg></span><span class="mcard-name">领域自适应</span><span class="mcard-time">≈10–15s</span></span>
-          <span class="mcard-chain"><span>识别领域</span><span>锁术语</span><span>直译</span><span>审校</span><span>精修</span></span>
-          <p class="mcard-desc">医学、IT、法律、金融长文。先绑定行业专有名词再翻译，杜绝术语误译。</p>
-        </button>
+        <span class="hint" id="hoverTip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7 16 2-7 7-2z"/></svg>悬停任一模式查看完整链路</span>
+        <div class="mode-detail" id="modeDetail" aria-hidden="true"></div>
+        <div class="mode-sum" id="modeSum"></div>
       </div>
+
 
       <div class="cfg-row">
         <div>
@@ -551,7 +570,7 @@ let mode='domain',state='idle',timer=null;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function toast(t){$('#toast-t').textContent=t;$('#toast').classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>$('#toast').classList.remove('on'),1800)}
 function setState(s){state=s;body.dataset.state=s;$$('[data-s]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===s)));render()}
-function setMode(m){mode=m;body.dataset.mode=m;$$('.mcard').forEach(c=>c.setAttribute('aria-checked',String(c.dataset.mode===m)));renderNodes();if(state==='working')toast('翻译进行中，模式已锁定')}
+function setMode(m){mode=m;body.dataset.mode=m;$$('.mode').forEach(c=>c.setAttribute('aria-checked',String(c.dataset.mode===m)));renderModeSum();if(detailOpen())showDetail(m);renderNodes();if(state==='working')toast('翻译进行中，模式已锁定')}
 
 /* ---------- 轨道 ---------- */
 function renderNodes(){
@@ -592,7 +611,7 @@ function count(){
   const cjk=(v.match(/[\u4e00-\u9fff]/g)||[]).length;
   const zh=chars>0 && cjk/chars>0.15;                 // 中文占比 >15% 判定源语言为中文
   $('#cc').textContent=`${chars} 字符 · ${n} 段`;
-  const tk=$('#tk'); if(tk) tk.textContent=`≈${Math.max(1,Math.round(zh?chars*0.75:chars/3.6))} tokens`;
+  const tk=$('#tk'); if(tk) tk.textContent = chars ? `≈${Math.max(1,Math.round(zh?chars*0.75:chars/3.6))} tokens` : '— tokens';
   const bs=document.querySelectorAll('.lang-btn b');
   if(bs.length>1){bs[0].textContent=zh?'中文':'English';bs[1].textContent=zh?'English':'中文（简体）'}
   const hc=document.querySelector('.chip.solid .mono');
@@ -610,7 +629,37 @@ function run(){
 /* ---------- 事件 ---------- */
 $$('[data-v]').forEach(b=>b.onclick=()=>{body.dataset.variant=b.dataset.v;$$('[data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$$('[data-pane]').forEach(s=>s.classList.toggle('on',s.dataset.pane===b.dataset.v))});
 $$('[data-s]').forEach(b=>b.onclick=()=>{clearInterval(timer);timer=null;setState(b.dataset.s);$('#bar').style.width=b.dataset.s==='done'?'100%':'0%';$('#pct').textContent=b.dataset.s==='done'?'100%':'0%'});
-$$('.mcard').forEach(c=>c.onclick=()=>setMode(c.dataset.mode));
+/* ---------- 模式：紧凑段控 + hover 详情披露（默认隐藏） ---------- */
+const MODE_META={
+  quick :{time:'≈1–2s',  calls:1, chain:['单次直译'],                                        desc:'一次模型调用直接产出译文，不做二次审校，也不生成中间过程。',           scene:'日常沟通、即时查词、单句短段落'},
+  pro   :{time:'≈5–8s',  calls:3, chain:['直译打底','批评审校','意译定稿'],                      desc:'先直译保住信息完整，再让模型自我批评定位硬伤，最后按目标语语序重写。',       scene:'学术论文、商务邮件、对外发布文案'},
+  domain:{time:'≈10–15s',calls:5, chain:['识别领域','锁定术语','直译打底','批评审校','术语精修'], desc:'在专业三步前后各加一道：先识别领域并抽取术语表锁定译法，最后做术语一致性校验。', scene:'医学、IT、法律、金融等长文与术语密集文本'}
+};
+const modesEl=$('#modes'), detailEl=$('#modeDetail'), pinBtn=$('#modePin');
+let pinned=false, hoverK=null, suppressed=false;   // suppressed：Esc 关闭后直到指针离开前不再自动弹出
+function detailOpen(){return modesEl.classList.contains('open')||pinned}
+function detailHTML(k){const M=MODES[k],m=MODE_META[k];
+  return `<div class="md-top"><span class="md-nm">${M.label}</span><span class="md-time">${m.time}</span><span class="md-auto">${m.calls} 次模型调用</span></div>
+    <div class="md-chain">${m.chain.map(c=>'<b>'+c+'</b>').join('<i>→</i>')}</div>
+    <p class="md-desc">${m.desc}</p>
+    <div class="md-scene"><b>何时选它：</b>${m.scene}</div>`}
+function showDetail(k){hoverK=k;detailEl.innerHTML=detailHTML(k);modesEl.classList.add('open');pinBtn.setAttribute('aria-expanded',String(pinned))}
+function hideDetail(){if(pinned){showDetail(mode);return}hoverK=null;modesEl.classList.remove('open');pinBtn.setAttribute('aria-expanded','false')}
+function renderModeSum(){const M=MODES[mode],m=MODE_META[mode];
+  $('#modeSum').innerHTML=`已选 <b>${M.label}</b><span class="mono">${m.time}</span><span class="sep">·</span><span class="chain">${m.chain.join(' → ')}</span><span class="sep">·</span>适用于${m.scene}`}
+$$('.mode').forEach(b=>{
+  b.onclick=()=>setMode(b.dataset.mode);
+  b.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){suppressed=false;showDetail(b.dataset.mode)}});
+  b.addEventListener('focus',()=>showDetail(b.dataset.mode));          // 键盘等价路径
+});
+modesEl.addEventListener('pointerleave',hideDetail);
+pinBtn.onclick=()=>{pinned=!pinned;pinBtn.setAttribute('aria-pressed',String(pinned));
+  if(pinned){showDetail(hoverK||mode);toast('详情已固定（Esc 取消）')}else{modesEl.classList.remove('open');pinBtn.setAttribute('aria-expanded','false')}};
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
+  if(!pinned&&!modesEl.classList.contains('open'))return;
+  pinned=false;pinBtn.setAttribute('aria-pressed','false');suppressed=true;
+  modesEl.classList.remove('open');pinBtn.setAttribute('aria-expanded','false')});
+if(!matchMedia('(hover:hover)').matches)$('#hoverTip').hidden=true;
 $('[data-notes-toggle]').onclick=e=>{const on=body.dataset.notes!=='on';body.dataset.notes=on?'on':'off';e.currentTarget.setAttribute('aria-pressed',String(on));e.currentTarget.textContent=on?'隐藏改动标注':'显示改动标注'};
 $('#src').addEventListener('input',count);
 $('[data-clear]').onclick=()=>{$('#src').value='';count();toast('已清空原文')};
@@ -622,7 +671,7 @@ document.addEventListener('click',()=>$('#menu')?.classList.remove('on'));
 $('#menu')?.querySelectorAll('button').forEach(b=>b.onclick=()=>{setState('idle');clearInterval(timer);timer=null;toast(b.textContent.includes('所有')?'已重置三种模式的全部结果':'已重置')});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')run()});
 document.addEventListener('DOMContentLoaded',()=>{count();renderNodes()});
-count();render();renderNodes();
+count();render();renderNodes();renderModeSum();detailEl.innerHTML=detailHTML(mode);
 </script>
 </body>
 </html>

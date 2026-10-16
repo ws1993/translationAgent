@@ -40,7 +40,7 @@ export function TranslationReport({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Warm Charcoal Block */}
-        <div className="bg-[#2A2723] text-white px-8 py-6">
+        <div className="bg-charcoal text-white px-8 py-6">
           <div className="flex items-start justify-between">
             <div>
               <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-3 py-1 rounded-full text-xs font-medium mb-3">
@@ -131,20 +131,20 @@ export function TranslationReport({
 
           {/* Switch to Domain Adaptive Button (Professional Mode Only) */}
           {mode === 'professional' && onSwitchToDomainAdaptive && (
-            <div className="bg-gradient-to-r from-[#F0E3D0] to-[#FBF7EF] rounded-lg border border-[#C8853F]/30 p-5">
+            <div className="bg-gradient-to-r from-accent-tint to-surface-1 rounded-lg border border-accent/30 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-serif font-bold text-[#1F2421] mb-2">
+                  <h3 className="text-lg font-serif font-bold text-ink mb-2">
                     对当前结果不满意？试试领域自适应翻译
                   </h3>
-                  <p className="text-sm text-[#8A8A80] leading-relaxed">
+                  <p className="text-sm text-muted leading-relaxed">
                     领域自适应模式会先智能识别文本所属专业领域，然后动态生成术语表，
                     基于领域知识进行翻译，能显著提升专业术语的准确性和一致性。
                   </p>
                 </div>
                 <button
                   onClick={onSwitchToDomainAdaptive}
-                  className="flex-shrink-0 px-6 py-3 bg-[#C8853F] hover:bg-[#A86B2C] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                  className="flex-shrink-0 px-6 py-3 bg-accent-strong hover:bg-accent-hover text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                 >
                   <span>切换到领域翻译</span>
                   <ArrowRight className="w-4 h-4" />
@@ -162,28 +162,28 @@ export function TranslationReport({
                 </span>
                 领域识别结果
               </h2>
-              <div className="bg-[#F0E3D0] rounded-lg border border-[#C8853F]/30 p-5">
+              <div className="bg-accent-tint rounded-lg border border-accent/30 p-5">
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className="text-xs text-[#8A8A80] mb-1">主要领域</p>
-                    <p className="text-lg font-bold text-[#C8853F]">{result.domainInfo?.primaryDomain}</p>
+                    <p className="text-xs text-muted mb-1">主要领域</p>
+                    <p className="text-lg font-bold text-accent">{result.domainInfo?.primaryDomain}</p>
                   </div>
                   {result.domainInfo?.subDomain && (
                     <div>
-                      <p className="text-xs text-[#8A8A80] mb-1">细分领域</p>
-                      <p className="text-lg font-bold text-[#A86B2C]">{result.domainInfo?.subDomain}</p>
+                      <p className="text-xs text-muted mb-1">细分领域</p>
+                      <p className="text-lg font-bold text-accent-strong">{result.domainInfo?.subDomain}</p>
                     </div>
                   )}
                   <div>
-                    <p className="text-xs text-[#8A8A80] mb-1">置信度</p>
+                    <p className="text-xs text-muted mb-1">置信度</p>
                     <p className="text-lg font-bold text-green-600">
                       {Math.round((result.domainInfo?.confidence || 0) * 100)}%
                     </p>
                   </div>
                 </div>
-                <div className="pt-3 border-t border-[#C8853F]/20">
-                  <p className="text-xs text-[#8A8A80] mb-1">判断理由</p>
-                  <p className="text-sm text-[#1F2421]">{result.domainInfo?.reasoning}</p>
+                <div className="pt-3 border-t border-accent/20">
+                  <p className="text-xs text-muted mb-1">判断理由</p>
+                  <p className="text-sm text-ink">{result.domainInfo?.reasoning}</p>
                 </div>
               </div>
             </section>
@@ -210,17 +210,17 @@ export function TranslationReport({
                     </span>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-1">
-                        <span className="font-bold text-[#1F2421]">{term.source}</span>
-                        <span className="text-[#8A8A80]">→</span>
-                        <span className="font-bold text-[#C8853F]">{term.target}</span>
+                        <span className="font-bold text-ink">{term.source}</span>
+                        <span className="text-muted">→</span>
+                        <span className="font-bold text-accent">{term.target}</span>
                       </div>
                       {term.context && (
-                        <p className="text-xs text-[#8A8A80]">
+                        <p className="text-xs text-muted">
                           <span className="font-semibold">场景：</span>{term.context}
                         </p>
                       )}
                       {term.notes && (
-                        <p className="text-xs text-[#C8853F] mt-1">
+                        <p className="text-xs text-accent mt-1">
                           <span className="font-semibold">注意：</span>{term.notes}
                         </p>
                       )}

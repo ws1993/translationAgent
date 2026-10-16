@@ -1,116 +1,140 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Design Tokens
+   文字色按「角色」分级；数值为 WCAG 2.1 实测对比度（脚本计算）
+   ========================================================================== */
 @theme {
-  --color-background: #F6F1E8;
+  /* 表面与描边 */
   --color-paper: #F6F1E8;
+  --color-background: #F6F1E8;
   --color-surface: #FFFFFF;
   --color-surface-1: #FBF7EF;
   --color-surface-light: #FBF7EF;
   --color-border: #E2D9C8;
+  --color-border-strong: #D3C7B2;   /* 控件描边：按钮 / 段控 / 输入框 / 浮层 */
   --color-warm-border: #E2D9C8;
-  --color-ink: #1F2421;
-  --color-muted: #8A8A80;
-  --color-accent: #C8853F;
-  --color-accent-hover: #A86B2C;
-  --color-accent-tint: #F0E3D0;
-  --color-charcoal: #2A2723;
 
-  --font-family-serif: 'DM Serif Display', serif;
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  /* 圆角 */
+  --radius-panel: 14px;
+
+  /* 文本：全部需阅读文字 ≥ 4.5:1 */
+  --color-ink: #1F2421;          /* 14.01:1  正文 / 译文 / 标题 */
+  --color-ink-2: #4A443C;        /*  8.9:1   次级正文 */
+  --color-muted: #6B655B;        /*  5.2:1   辅助说明、标签、导航（原 #8A8A80 仅 3.26:1，不达标） */
+  --color-muted-faint: #8A8A80;  /* 仅装饰性元素与禁用态，禁止用于需阅读文字 */
+
+  /* 强调色：图形与实底/文字分工（赭石压白字仅 3.05:1，故拆分） */
+  --color-accent: #C8853F;         /* 图形：边框 / 图标 / 进度 / 选中环 */
+  --color-accent-strong: #8F5A20;  /*  5.75:1 白字实底按钮、铜色文字 */
+  --color-accent-hover: #7A4B18;   /* hover 更深 */
+  --color-accent-tint: #F0E3D0;    /* ink 14.4:1 浅底徽章 / 选中底 */
+  --color-charcoal: #2A2723;
+  --color-success: #3F7D52;
+  --color-danger: #A8412F;
+
+  /* 字面：拉丁展示体与中文正文字面分离 */
+  --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+  --font-brand: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  /* font-serif 被全站大量中文标题使用；让它指向「拉丁用展示衬线、中文回落 sans」的组合，
+     一次性消除 SimSun 回落 + 合成斜体问题（原问题见审查 §P0-2） */
+  --font-serif: 'DM Serif Display', var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
 }
 
 @layer base {
+  html {
+    /* 关键护栏：即使误写 italic/bold，中文也不会被算法合成 */
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     margin: 0;
-    font-family: var(--font-family-sans);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--color-background);
+    background-color: var(--color-paper);
     color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-serif);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+  }
+
+  /* 中文标签不该套用英文表单的大写字距习惯（审查 §P1-6）；
+     工具类在 @layer utilities 内，未分层的 base 规则优先级更高，故可整体纠正 */
+  label {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  /* 占位符统一提到可读级别（原 text-muted/60 仅 2.29:1） */
+  ::placeholder {
+    color: var(--color-muted);
+    opacity: 0.85;
+  }
+
+  :focus-visible {
+    outline: none;
   }
 }
 
-@layer components {
-  .bg-background {
-    background-color: var(--color-background);
-  }
-  .bg-paper {
-    background-color: var(--color-paper);
-  }
-  .bg-surface {
-    background-color: var(--color-surface);
-  }
-  .bg-surface-1 {
-    background-color: var(--color-surface-1);
-  }
-  .bg-surface-light {
-    background-color: var(--color-surface-light);
-  }
-  .border-border {
-    border-color: var(--color-border);
-  }
-  .border-warm-border {
-    border-color: var(--color-warm-border);
-  }
-  .text-ink {
-    color: var(--color-ink);
-  }
-  .text-muted {
-    color: var(--color-muted);
-  }
-  .bg-accent {
-    background-color: var(--color-accent);
-  }
-  .text-accent {
-    color: var(--color-accent);
-  }
-  .bg-accent-hover {
-    background-color: var(--color-accent-hover);
-  }
-  .text-accent-hover {
-    color: var(--color-accent-hover);
-  }
-  .bg-accent-tint {
-    background-color: var(--color-accent-tint);
-  }
-  .border-accent {
-    border-color: var(--color-accent);
-  }
-  .ring-accent {
-    --tw-ring-color: var(--color-accent);
-  }
+/* 展示字面工具类：只给拉丁品牌词使用 */
+@utility font-brand {
+  font-family: var(--font-brand);
 }
 
 @layer utilities {
-  /* Custom scrollbar styles */
+  /* 滚动条：WebKit + Firefox 双轨 */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(200, 133, 63, 0.35) transparent;
+  }
   .scrollbar-thin::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
+    height: 8px;
+    width: 8px;
   }
-  
   .scrollbar-thin::-webkit-scrollbar-track {
-    background-color: var(--color-border);
-    border-radius: 3px;
+    background-color: var(--color-paper);
+    border-radius: 4px;
   }
-  
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(200, 133, 63, 0.3);
-    border-radius: 3px;
+    background-color: rgba(200, 133, 63, 0.35);
+    border-radius: 4px;
   }
-  
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(200, 133, 63, 0.5);
+    background-color: rgba(200, 133, 63, 0.55);
   }
-  
-  .scrollbar-thumb-\[--color-accent\]\/30::-webkit-scrollbar-thumb {
-    background-color: rgba(200, 133, 63, 0.3);
+  /* 加载骨架条：Translation 译文面板「进行中」态使用；
+     宽度由调用处的 w-[92%] 等工具类控制，这里只管底色与流光 */
+  @keyframes ta-shimmer {
+    to { background-position: -200% 0; }
   }
-  
-  .scrollbar-track-\[--color-border\]::-webkit-scrollbar-track {
-    background-color: var(--color-border);
+  .skeleton-line {
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--color-paper), var(--color-accent-tint), var(--color-paper));
+    background-size: 200% 100%;
+    animation: ta-shimmer 1.5s linear infinite;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* 浮层入场动画：Radix Portal 内容挂载时用（tooltip / dialog 均依赖此类） */
+@keyframes ta-pop-in {
+  from { opacity: 0; transform: translateY(3px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+.anim-pop {
+  animation: ta-pop-in 140ms ease-out;
 }

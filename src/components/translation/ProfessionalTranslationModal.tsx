@@ -75,11 +75,11 @@ export function ProfessionalTranslationModal({
     if (status !== 'active' || !isCurrentlyActive) return null;
 
     return (
-      <div className="mb-4 p-3 bg-[#F0E3D0] rounded-lg border border-[#C8853F]/30 flex items-center gap-3">
-        <Loader2 className="w-4 h-4 text-[#C8853F] animate-spin flex-shrink-0" />
+      <div className="mb-4 p-3 bg-accent-tint rounded-lg border border-accent/30 flex items-center gap-3">
+        <Loader2 className="w-4 h-4 text-accent animate-spin flex-shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-[#C8853F]">{getThinkingText(stage)}</p>
-          <p className="text-xs text-[#8A8A80] mt-0.5">内容将实时流式显示</p>
+          <p className="text-sm font-medium text-accent">{getThinkingText(stage)}</p>
+          <p className="text-xs text-muted mt-0.5">内容将实时流式显示</p>
         </div>
       </div>
     );
@@ -92,34 +92,34 @@ export function ProfessionalTranslationModal({
     >
       <div
         ref={modalRef}
-        className="relative w-full max-w-5xl max-h-[90vh] bg-[#F6F1E8] rounded-xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative w-full max-w-5xl max-h-[90vh] bg-paper rounded-xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E2D9C8] bg-[#FBF7EF]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-surface-1">
           <div>
-            <h2 className="text-2xl font-serif font-bold text-[#1F2421] tracking-tight">
-              专业翻译 · <span className="text-[#C8853F] italic">三阶段深度分析</span>
+            <h2 className="text-2xl font-serif font-bold text-ink tracking-tight">
+              专业翻译 · <span className="text-accent italic">三阶段深度分析</span>
             </h2>
-            <p className="text-xs text-[#8A8A80] mt-1">流式实时输出 · 透明化翻译过程</p>
+            <p className="text-xs text-muted mt-1">流式实时输出 · 透明化翻译过程</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-[#E2D9C8] transition-all"
+            className="p-2 rounded-lg hover:bg-border transition-all"
           >
-            <X className="w-5 h-5 text-[#8A8A80]" />
+            <X className="w-5 h-5 text-muted" />
           </button>
         </div>
 
         {/* Progress Section */}
-        <div className="px-6 py-4 bg-[#FBF7EF] border-b border-[#E2D9C8]">
+        <div className="px-6 py-4 bg-surface-1 border-b border-border">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-[#1F2421]">翻译进度</p>
-            <p className="text-sm font-bold text-[#C8853F]">{progress.progress}%</p>
+            <p className="text-sm font-medium text-ink">翻译进度</p>
+            <p className="text-sm font-bold text-accent">{progress.progress}%</p>
           </div>
-          <div className="relative h-2 bg-[#E2D9C8] rounded-full overflow-hidden">
+          <div className="relative h-2 bg-border rounded-full overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#C8853F] to-[#A86B2C] transition-all duration-500 ease-out rounded-full"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent to-accent-strong transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progress.progress}%` }}
             />
           </div>
@@ -134,23 +134,23 @@ export function ProfessionalTranslationModal({
                     {status === 'completed' ? (
                       <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
                     ) : status === 'active' ? (
-                      <Loader2 className="w-5 h-5 text-[#C8853F] animate-spin flex-shrink-0" />
+                      <Loader2 className="w-5 h-5 text-accent animate-spin flex-shrink-0" />
                     ) : (
-                      <Circle className="w-5 h-5 text-[#8A8A80] flex-shrink-0" />
+                      <Circle className="w-5 h-5 text-muted flex-shrink-0" />
                     )}
                     <div className="flex-1">
                       <p className={`text-xs font-semibold ${
                         status === 'completed' ? 'text-green-600' :
-                        status === 'active' ? 'text-[#C8853F]' :
-                        'text-[#8A8A80]'
+                        status === 'active' ? 'text-accent' :
+                        'text-muted'
                       }`}>
                         {tab.label}
                       </p>
-                      <p className="text-xs text-[#8A8A80]">{tab.description}</p>
+                      <p className="text-xs text-muted">{tab.description}</p>
                     </div>
                   </div>
                   {index < tabs.length - 1 && (
-                    <div className="w-8 h-0.5 bg-[#E2D9C8] flex-shrink-0" />
+                    <div className="w-8 h-0.5 bg-border flex-shrink-0" />
                   )}
                 </div>
               );
@@ -159,7 +159,7 @@ export function ProfessionalTranslationModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 px-6 pt-4 bg-[#F6F1E8]">
+        <div className="flex gap-1 px-6 pt-4 bg-paper">
           {tabs.map((tab) => {
             const status = getStageStatus(tab.key);
             const isDisabled = !canSwitchTab(tab.key) && status !== 'active';
@@ -172,10 +172,10 @@ export function ProfessionalTranslationModal({
                 className={`
                   px-5 py-3 text-sm font-semibold rounded-t-lg transition-all
                   ${activeTab === tab.key
-                    ? 'bg-white text-[#1F2421] shadow-sm'
+                    ? 'bg-white text-ink shadow-sm'
                     : isDisabled
-                    ? 'text-[#8A8A80] opacity-50 cursor-not-allowed'
-                    : 'text-[#8A8A80] hover:text-[#1F2421] hover:bg-[#FBF7EF]'
+                    ? 'text-muted opacity-50 cursor-not-allowed'
+                    : 'text-muted hover:text-ink hover:bg-surface-1'
                   }
                 `}
               >
@@ -185,7 +185,7 @@ export function ProfessionalTranslationModal({
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
                   )}
                   {status === 'active' && (
-                    <Loader2 className="w-4 h-4 text-[#C8853F] animate-spin" />
+                    <Loader2 className="w-4 h-4 text-accent animate-spin" />
                   )}
                 </span>
               </button>
@@ -200,16 +200,16 @@ export function ProfessionalTranslationModal({
               {renderThinkingHeader('direct')}
               
               {progress.directTranslation ? (
-                <div className="p-5 bg-[#FBF7EF] rounded-lg border border-[#E2D9C8] leading-relaxed">
-                  <div className="prose prose-sm max-w-none text-[#1F2421] whitespace-pre-wrap font-normal">
+                <div className="p-5 bg-surface-1 rounded-lg border border-border leading-relaxed">
+                  <div className="prose prose-sm max-w-none text-ink whitespace-pre-wrap font-normal">
                     {progress.directTranslation}
                   </div>
                   <div ref={contentEndRef} />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-16 text-[#8A8A80]">
+                <div className="flex items-center justify-center py-16 text-muted">
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#C8853F] animate-spin" />
+                    <Loader2 className="w-10 h-10 text-accent animate-spin" />
                     <p className="text-sm font-medium">等待直译开始...</p>
                   </div>
                 </div>
@@ -222,21 +222,21 @@ export function ProfessionalTranslationModal({
               {renderThinkingHeader('issues')}
               
               {progress.issues && progress.issues.length > 0 ? (
-                <div className="p-5 bg-[#F0E3D0] rounded-lg border border-[#C8853F]/20">
+                <div className="p-5 bg-accent-tint rounded-lg border border-accent/20">
                   <div className="prose prose-sm max-w-none [&_ol]:list-decimal [&_ol]:list-outside [&_ol]:ml-5 [&_ul]:list-disc [&_ul]:list-outside [&_ul]:ml-5">
                     <ReactMarkdown
                       components={{
-                        p: ({ children }) => <p className="text-sm text-[#1F2421] leading-relaxed mb-3 last:mb-0">{children}</p>,
-                        strong: ({ children }) => <strong className="font-bold text-[#C8853F]">{children}</strong>,
-                        em: ({ children }) => <em className="italic text-[#1F2421]">{children}</em>,
-                        code: ({ children }) => <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-[#1F2421] border border-[#C8853F]/20">{children}</code>,
-                        ul: ({ children }) => <ul className="space-y-2 mb-3 text-sm text-[#1F2421]">{children}</ul>,
-                        ol: ({ children }) => <ol className="space-y-2 mb-3 text-sm text-[#1F2421]">{children}</ol>,
-                        li: ({ children }) => <li className="text-sm text-[#1F2421] leading-relaxed [&>p]:inline [&>p]:m-0">{children}</li>,
-                        h1: ({ children }) => <h1 className="text-lg font-bold text-[#C8853F] mb-2 mt-4 first:mt-0">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-base font-bold text-[#C8853F] mb-2 mt-3 first:mt-0">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-bold text-[#C8853F] mb-1 mt-2 first:mt-0">{children}</h3>,
-                        blockquote: ({ children }) => <blockquote className="border-l-4 border-[#C8853F]/30 pl-3 italic text-sm text-[#8A8A80] my-2">{children}</blockquote>,
+                        p: ({ children }) => <p className="text-sm text-ink leading-relaxed mb-3 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold text-accent">{children}</strong>,
+                        em: ({ children }) => <em className="italic text-ink">{children}</em>,
+                        code: ({ children }) => <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono text-ink border border-accent/20">{children}</code>,
+                        ul: ({ children }) => <ul className="space-y-2 mb-3 text-sm text-ink">{children}</ul>,
+                        ol: ({ children }) => <ol className="space-y-2 mb-3 text-sm text-ink">{children}</ol>,
+                        li: ({ children }) => <li className="text-sm text-ink leading-relaxed [&>p]:inline [&>p]:m-0">{children}</li>,
+                        h1: ({ children }) => <h1 className="text-lg font-bold text-accent mb-2 mt-4 first:mt-0">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold text-accent mb-2 mt-3 first:mt-0">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-bold text-accent mb-1 mt-2 first:mt-0">{children}</h3>,
+                        blockquote: ({ children }) => <blockquote className="border-l-4 border-accent/30 pl-3 italic text-sm text-muted my-2">{children}</blockquote>,
                       }}
                     >
                       {progress.issues.join('\n\n')}
@@ -245,9 +245,9 @@ export function ProfessionalTranslationModal({
                   <div ref={contentEndRef} />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-16 text-[#8A8A80]">
+                <div className="flex items-center justify-center py-16 text-muted">
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#C8853F] animate-spin" />
+                    <Loader2 className="w-10 h-10 text-accent animate-spin" />
                     <p className="text-sm font-medium">等待问题分析...</p>
                   </div>
                 </div>
@@ -265,15 +265,15 @@ export function ProfessionalTranslationModal({
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                     <p className="text-sm font-semibold text-green-800">最终优化译文</p>
                   </div>
-                  <div className="prose prose-sm max-w-none text-[#1F2421] whitespace-pre-wrap font-normal">
+                  <div className="prose prose-sm max-w-none text-ink whitespace-pre-wrap font-normal">
                     {progress.finalTranslation}
                   </div>
                   <div ref={contentEndRef} />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-16 text-[#8A8A80]">
+                <div className="flex items-center justify-center py-16 text-muted">
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#C8853F] animate-spin" />
+                    <Loader2 className="w-10 h-10 text-accent animate-spin" />
                     <p className="text-sm font-medium">等待最终译文生成...</p>
                   </div>
                 </div>
@@ -283,10 +283,10 @@ export function ProfessionalTranslationModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#E2D9C8] bg-[#FBF7EF] flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-border bg-surface-1 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 text-sm font-semibold text-[#8A8A80] hover:text-[#1F2421] hover:bg-[#E2D9C8] rounded-lg transition-all"
+            className="px-5 py-2.5 text-sm font-semibold text-muted hover:text-ink hover:bg-border rounded-lg transition-all"
           >
             关闭
           </button>

@@ -106,7 +106,7 @@ export function ParagraphComparisonModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#2A2723] text-white px-8 py-5 flex items-center justify-between">
+        <div className="bg-charcoal text-white px-8 py-5 flex items-center justify-between">
           <div>
             <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-3 py-1 rounded-full text-xs font-medium mb-2">
               <Minimize2 className="w-3 h-3" />

@@ -7,7 +7,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!--
+      Inter 必须包含 700：中文标题用 font-bold，若 Inter 只到 600，
+      拉丁部分会被合成加粗（与审查 §P0-2 同类的静默降级）。
+      中文不加载网络字体：走系统 PingFang / 微软雅黑，它们有真实字重，
+      且可省下 CJK 字体体积。
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
