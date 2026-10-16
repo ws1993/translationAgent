@@ -71,12 +71,3 @@ export interface LLMConfig {
   isActive: boolean;
 }
 
-export interface WebDAVConfig {
-  url: string;
-  username: string;
-  password: string;
-  autoSync: boolean;
-  syncInterval: number;
-  conflictStrategy: 'server' | 'local' | 'prompt';
-  lastSyncAt?: string;
-}

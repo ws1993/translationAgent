@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLLMConfigStore } from '../stores/llmConfigStore';
-import { useWebDAVStore } from '../stores/webdavStore';
 import { LLMService } from '../services/llm/LLMService';
-import { WebDAVService } from '../services/webdav/WebDAVService';
 import { LLMConfig } from '../types';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -19,7 +17,6 @@ import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } fr
 import { toast } from 'sonner';
 import { Trash2, Plus, Pencil } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { WebDAVSettings } from '../components/webdav/WebDAVSettings';
 
 function Settings() {
   const [dialogOpen, setDialogOpen] = useState(false);
