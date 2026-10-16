@@ -89,8 +89,8 @@ function Layout() {
                 <SelectTrigger
                   aria-label="切换使用中的模型"
                   className={cn(
-                    'h-7 w-auto gap-2 rounded-full border-border bg-surface px-2.5 py-0 text-xs',
-                    'text-muted focus:border-accent focus:ring-0',
+                    'h-7 w-auto cursor-pointer gap-2 rounded-full border-border bg-surface px-2.5 py-0 text-xs',
+                    'text-muted hover:border-accent hover:text-ink focus:border-accent focus:ring-0',
                     // Radix 把 ChevronDown 放在 children 之后，缩小默认间距
                     '[&>span]:flex [&>span]:items-center [&>span]:gap-2'
                   )}

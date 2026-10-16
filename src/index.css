@@ -81,6 +81,13 @@
   :focus-visible {
     outline: none;
   }
+
+  /* 全局交互元素手势：按钮、段控与交互控件默认手型光标 */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [data-radix-collection-item]:not([data-disabled]) {
+    cursor: pointer;
+  }
 }
 
 /* 展示字面工具类：只给拉丁品牌词使用 */

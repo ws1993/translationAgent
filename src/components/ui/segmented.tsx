@@ -52,7 +52,7 @@ export const SegmentedItem = React.forwardRef<HTMLButtonElement, SegmentedItemPr
     <ToggleGroupPrimitive.Item
       ref={ref}
       className={cn(
-        "inline-flex h-[30px] items-center gap-1.5 rounded-md px-3 text-[13.5px] font-semibold",
+        "inline-flex h-[30px] cursor-pointer items-center gap-1.5 rounded-md px-3 text-[13.5px] font-semibold",
         "whitespace-nowrap text-muted transition-colors",
         "hover:bg-surface-1 hover:text-ink",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
